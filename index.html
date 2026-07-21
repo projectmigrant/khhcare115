@@ -1,0 +1,1908 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>高雄到宅 專案儀表板</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.js" integrity="sha384-iU8HYtnGQ8Cy4zl7gbNMOhsDTTKX02BTXptVP/vqAWIaTfM7isw76iyZCsjL2eVi" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js" crossorigin="anonymous"></script>
+<style>
+:root{color-scheme:light;--pri:#E8732A;--pri-l:#FBE8D8;--pri-d:#C45E1A;--sec:#4A90D9;--ok:#27AE60;--warn:#F39C12;--err:#E74C3C;--dark:#2C2C2C;--gray:#6B7280;--bg:#F0F2F5;--card:#FFFFFF;--border:#E5E7EB;--shadow:0 2px 8px rgba(0,0,0,0.08);--line:#E5E7EB;--txt:#2C2C2C}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Noto Sans TC','Microsoft JhengHei',sans-serif;background:var(--bg);color:var(--dark);font-size:14px;line-height:1.5}
+.hdr{background:linear-gradient(135deg,#2C2C2C,#1A1A1A);color:#fff;padding:0 20px;display:flex;align-items:center;justify-content:space-between;height:52px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.hdr-t{font-size:15px;font-weight:700}
+.hdr-s{font-size:11px;color:rgba(255,255,255,.4);margin-left:6px}
+.hdr-r{display:flex;align-items:center;gap:10px}
+.upd-lbl{font-size:11px;color:rgba(255,255,255,.4)}
+.vtog{display:flex;background:rgba(255,255,255,.1);border-radius:6px;overflow:hidden}
+.vbtn{padding:5px 13px;font-size:12px;font-weight:600;color:rgba(255,255,255,.6);border:none;background:transparent;cursor:pointer;border-radius:6px;transition:.2s;font-family:inherit}
+.vbtn.on{background:var(--pri);color:#fff}
+.main{padding:16px 20px}
+/* filter bar */
+.fbar{display:flex;align-items:center;gap:10px;background:var(--card);border-radius:10px;padding:10px 16px;margin-bottom:12px;box-shadow:var(--shadow)}
+.fbar label{font-size:11px;font-weight:700;color:var(--gray);white-space:nowrap}
+.fbar select{padding:5px 9px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:inherit;color:var(--dark);cursor:pointer}
+.fbar select:focus{outline:none;border-color:var(--pri)}
+.fbar-badge{background:var(--pri-l);color:var(--pri-d);font-size:11px;font-weight:700;padding:3px 10px;border-radius:10px}
+/* risk banner */
+.risk-bar{border-radius:10px;padding:14px 18px;margin-bottom:12px;display:flex;flex-direction:column;gap:10px;box-shadow:var(--shadow)}
+.risk-bar.green{background:#DCFCE7;border-left:5px solid var(--ok)}
+.risk-bar.yellow{background:#FEF3C7;border-left:5px solid var(--warn)}
+.risk-bar.red{background:#FEE2E2;border-left:5px solid var(--err)}
+.risk-top{display:flex;align-items:center;gap:16px}
+.risk-light{font-size:28px;line-height:1}
+.risk-t{font-size:17px;font-weight:700}
+.risk-s{font-size:13px;opacity:.75;margin-top:3px}
+.risk-stats{display:flex;gap:20px;flex-wrap:wrap}
+.rs{text-align:center}
+.rs-v{font-size:22px;font-weight:700}
+.rs-l{font-size:12px;color:var(--gray)}
+/* kpi */
+.krow{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:12px}
+.kc{background:var(--card);border-radius:10px;padding:18px 14px;box-shadow:var(--shadow);border-left:4px solid var(--pri);text-align:center}
+.kc.ok{border-left-color:var(--ok)}.kc.warn{border-left-color:var(--warn)}.kc.info{border-left-color:var(--sec)}.kc.err{border-left-color:var(--err)}.kc.gray{border-left-color:#CBD5E1}
+.kl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--gray);margin-bottom:6px}
+.kv{font-size:26px;font-weight:800;line-height:1.2}
+.ks{font-size:12px;color:var(--gray);margin-top:4px}
+.badge{display:inline-flex;align-items:center;padding:2px 7px;border-radius:10px;font-size:10px;font-weight:700;margin-top:3px}
+.b-ok{background:#DCFCE7;color:#166534}.b-warn{background:#FEF3C7;color:#92400E}.b-err{background:#FEE2E2;color:#991B1B}.b-info{background:#DBEAFE;color:#1E40AF}.b-gray{background:#F3F4F6;color:#6B7280}
+/* month highlight card */
+.mcard{background:var(--card);border-radius:10px;padding:14px 18px;margin-bottom:12px;box-shadow:var(--shadow);border-top:3px solid var(--pri)}
+.mcard-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.mcard-t{font-size:13px;font-weight:700;color:var(--pri)}
+.mcard-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.mg{background:#F9FAFB;border-radius:8px;padding:10px;text-align:center}
+.mg-v{font-size:20px;font-weight:700}
+.mg-l{font-size:10px;color:var(--gray);margin-top:2px}
+/* progress */
+.pbar-wrap{background:#F3F4F6;border-radius:6px;height:28px;position:relative;overflow:hidden;margin:6px 0 18px}
+.pbar-fill{height:100%;background:linear-gradient(90deg,var(--pri),#F5A762);border-radius:6px;display:flex;align-items:center;padding-left:8px;font-size:11px;font-weight:700;color:#fff;transition:width 1s ease}
+.pbar-mk{position:absolute;top:0;height:100%;width:2px;background:rgba(0,0,0,.3);opacity:.5}
+.pbar-mk::after{content:attr(data-l);position:absolute;top:-17px;left:-16px;font-size:9px;color:#555;white-space:nowrap;font-weight:700}
+.stat-boxes{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.sb{background:#F9FAFB;border-radius:8px;padding:10px;text-align:center}
+.sb-v{font-size:22px;font-weight:700}
+.sb-l{font-size:10px;color:var(--gray);margin-top:2px}
+.g2{display:grid;grid-template-columns:2fr 1fr;gap:12px;margin-bottom:12px}
+.g11{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.cc{background:var(--card);border-radius:10px;padding:16px;box-shadow:var(--shadow)}
+.ch{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.ct{font-size:12px;font-weight:700;display:flex;align-items:center;gap:6px}
+.ct::before{content:'';display:inline-block;width:3px;height:13px;background:var(--pri);border-radius:2px}
+.cs{font-size:11px;color:var(--gray)}
+.cv{position:relative;height:210px}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{text-align:left;padding:7px 9px;background:#F9FAFB;font-weight:600;color:var(--gray);border-bottom:1px solid var(--border);font-size:10px;text-transform:uppercase;letter-spacing:.4px}
+td{padding:7px 9px;border-bottom:1px solid #F3F4F6}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#FAFAFA}
+.scroll-x{overflow-x:auto}
+/* P&L view */
+.pl-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px}
+.pl-card{background:var(--card);border-radius:10px;padding:18px;box-shadow:var(--shadow)}
+.pl-t{font-size:12px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.pl-t::before{content:'';display:inline-block;width:3px;height:12px;background:var(--pri);border-radius:2px}
+.pl-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid #F3F4F6;font-size:12px}
+.pl-row:last-child{border-bottom:none}
+.pl-row.total{font-weight:700;font-size:13px;border-top:2px solid var(--border);margin-top:4px;padding-top:8px}
+.pl-row.profit{color:var(--ok)}.pl-row.loss{color:var(--err)}
+.pl-lbl{color:var(--gray)}
+.pl-val{font-weight:600}
+.surplus-bar{height:8px;background:#F3F4F6;border-radius:4px;margin-top:4px;overflow:hidden}
+.surplus-fill{height:100%;border-radius:4px}
+.big-num{font-size:32px;font-weight:800;margin:8px 0 4px}
+.big-sub{font-size:11px;color:var(--gray)}
+/* Admin */
+#vAdmin{display:none}#vPL{display:none}#vAna{display:none}
+.adm-hdr{background:var(--card);border-radius:10px;padding:14px 18px;margin-bottom:14px;box-shadow:var(--shadow);display:flex;align-items:center;justify-content:space-between}
+.tnav{display:flex;gap:0;background:#F3F4F6;border-radius:8px;padding:3px;margin-bottom:14px}
+.tbtn{padding:7px 18px;border:none;background:transparent;border-radius:6px;font-size:12px;font-weight:600;color:var(--gray);cursor:pointer;font-family:inherit;transition:.2s}
+.tbtn.on{background:var(--card);color:var(--pri);box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.tcont{display:none}.tcont.on{display:block}
+.fsec{background:var(--card);border-radius:10px;padding:18px;box-shadow:var(--shadow);margin-bottom:14px}
+.fst{font-size:13px;font-weight:700;margin-bottom:14px;padding-bottom:7px;border-bottom:2px solid var(--pri-l)}
+.fgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;margin-bottom:12px}
+.fg{display:flex;flex-direction:column;gap:4px}.fg.full{grid-column:1/-1}
+label{font-size:11px;font-weight:700;color:var(--gray)}
+input,select,textarea{padding:7px 9px;border:1px solid var(--border);border-radius:6px;font-size:12px;color:var(--dark);background:#fff;font-family:inherit;width:100%;transition:border-color .2s}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--pri)}
+.btn{padding:7px 18px;border:none;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:.2s}
+.btn-p{background:var(--pri);color:#fff}.btn-p:hover{background:var(--pri-d)}
+.btn-s{background:#F3F4F6;color:var(--dark)}.btn-s:hover{background:#E5E7EB}
+.btn-d{background:transparent;color:var(--err);border:1px solid var(--err);padding:3px 8px;font-size:10px}.btn-d:hover{background:#FEE2E2}
+.ok-msg{background:#DCFCE7;color:#166534;padding:7px 11px;border-radius:6px;font-size:11px;font-weight:700;margin-top:8px;display:none}
+.calc-tip{background:var(--pri-l);border-radius:6px;padding:7px 11px;font-size:11px;color:var(--pri-d);margin:8px 0}
+.crow{display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid #F3F4F6;font-size:12px}
+.crow:last-child{border-bottom:none}
+.mini-bar{height:4px;background:#F3F4F6;border-radius:2px;margin-top:3px}
+.mini-fill{height:100%;border-radius:2px}
+/* ===== 平板 ===== */
+@media(max-width:900px){
+  .krow{grid-template-columns:repeat(3,1fr)}
+  .g2,.g11,.pl-grid{grid-template-columns:1fr}
+  .mcard-grid{grid-template-columns:repeat(3,1fr)}
+  .stat-boxes{grid-template-columns:repeat(2,1fr)}
+}
+/* ===== 手機 ===== */
+@media(max-width:640px){
+  body{font-size:13px}
+  /* Header */
+  .hdr{padding:0 12px;height:auto;flex-wrap:wrap;gap:6px;padding-top:8px;padding-bottom:8px}
+  .hdr-t{font-size:13px}.hdr-s{display:none}
+  .upd-lbl{display:none}
+  .vbtn{padding:5px 9px;font-size:11px}
+  /* Main */
+  .main{padding:10px 10px}
+  /* Risk banner */
+  .risk-t{font-size:15px}.risk-light{font-size:24px}
+  .rs-v{font-size:18px}.rs{min-width:0}
+  .risk-stats{gap:12px}
+  /* KPI */
+  .krow{grid-template-columns:repeat(2,1fr);gap:8px}
+  .kv{font-size:16px}.kl{font-size:9px}
+  .ks{font-size:10px}
+  /* Cards */
+  .g2,.g11{grid-template-columns:1fr}
+  .mcard-grid{grid-template-columns:repeat(2,1fr)}
+  .stat-boxes{grid-template-columns:repeat(2,1fr)}
+  .sb-v{font-size:18px}
+  /* P&L */
+  .pl-grid{grid-template-columns:1fr}
+  .big-num{font-size:24px}
+  /* P&L top — 甜甜圈跟數字改為縱向堆疊 */
+  #vPL .cc>div{flex-direction:column!important}
+  #vPL .cc>div>div:first-child{min-width:0!important}
+  #vPL .cc>div>div:last-child{justify-content:center}
+  /* Admin */
+  .adm-hdr{flex-wrap:wrap;gap:8px}
+  .tnav{overflow-x:auto}
+  .tbtn{padding:6px 12px;white-space:nowrap}
+  .fgrid{grid-template-columns:1fr 1fr}
+  /* Charts */
+  .cv{height:170px}
+  /* Tables */
+  table{font-size:11px}
+  th,td{padding:5px 7px}
+}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div style="display:flex;align-items:center;gap:10px">
+    <span style="display:inline-block;width:8px;height:8px;background:var(--pri);border-radius:50%"></span>
+    <span class="hdr-t">高雄到宅 專案儀表板</span>
+    <span class="hdr-s">115年度補充訓練計畫</span>
+  </div>
+  <div class="hdr-r">
+    <span class="upd-lbl" id="lblUpd"></span>
+    <div class="vtog">
+      <button class="vbtn on" onclick="sv('dash')">📊 前台</button>
+      <button class="vbtn" onclick="sv('pl')">💰 損益</button>
+      <button class="vbtn" onclick="sv('ana')">📊 個案分析</button>
+      <button class="vbtn" onclick="sv('admin')">⚙️ 後台</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== DASHBOARD ===== -->
+<div id="vDash">
+<div class="main">
+
+  <!-- Risk banner -->
+  <div class="risk-bar" id="riskBar">
+    <div class="risk-top">
+      <div class="risk-light" id="riskLight">🔴</div>
+      <div>
+        <div class="risk-t" id="riskTitle"></div>
+        <div class="risk-s" id="riskSub"></div>
+      </div>
+    </div>
+    <div class="risk-stats" id="riskStats"></div>
+    <div id="riskThresh" style="font-size:13px;padding-top:6px;border-top:1px solid rgba(0,0,0,0.08);flex-wrap:wrap;display:flex;gap:4px"></div>
+  </div>
+
+  <!-- Settings strip -->
+  <div style="background:var(--card);border-radius:10px;padding:10px 16px;margin-bottom:12px;box-shadow:var(--shadow)">
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+      <span style="font-size:11px;font-weight:700;color:var(--gray)">⚙️ 目標設定</span>
+      <span style="font-size:12px">🎯 目標 <strong id="sdGoal">200</strong> 案</span>
+      <span style="font-size:12px">📅 截止 <strong id="sdDeadline">10/20</strong></span>
+      <button class="btn btn-s" style="padding:3px 10px;font-size:11px" onclick="toggleSettingsStrip()">✏️ 修改</button>
+    </div>
+    <div id="settingsStripForm" style="display:none;margin-top:10px">
+      <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap">
+        <div class="fg" style="min-width:130px"><label>目標總案量</label><input type="number" id="fGoal" min="1" max="500"></div>
+        <div class="fg" style="min-width:150px"><label>預期結案日期</label><input type="date" id="fDeadline"></div>
+        <button class="btn btn-p" style="padding:6px 14px;height:32px" onclick="saveSettingsFront()">💾 儲存</button>
+        <button class="btn btn-s" style="padding:6px 14px;height:32px" onclick="toggleSettingsStrip()">取消</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Month filter bar -->
+  <div class="fbar">
+    <label>📅 查看月份</label>
+    <select id="mSel" onchange="renderDash()">
+      <option value="">全部總覽</option>
+    </select>
+    <span class="fbar-badge" id="fbarBadge">全案彙總</span>
+  </div>
+
+  <!-- KPI row -->
+  <div class="krow" id="krow"></div>
+
+  <!-- Month detail card (hidden when showing all) -->
+  <div class="mcard" id="mcard" style="display:none">
+    <div class="mcard-h">
+      <div class="mcard-t" id="mcardTitle">當月快覽</div>
+      <div style="font-size:11px;color:var(--gray)">醫事×$2,100 ／ 通譯×$1,500 ／ 薪資$40,000</div>
+    </div>
+    <div class="mcard-grid" id="mcardGrid"></div>
+  </div>
+
+  <!-- Progress bar (全部模式) -->
+  <div id="progSection">
+  <div class="cc" style="margin-bottom:12px">
+    <div class="ch"><div class="ct">個案執行進度（累計）</div><div class="cs" id="pgLbl"></div></div>
+    <div class="pbar-wrap">
+      <div class="pbar-fill" id="pFill" style="width:0%"></div>
+      <div class="pbar-mk" style="left:22%" data-l="第一期44案 ✓"></div>
+      <div class="pbar-mk" style="left:60%" data-l="目標120案"></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--gray);margin-bottom:10px">
+      <span>開始 2025/10/24</span>
+      <span style="color:var(--err);font-weight:700">⚠ 到宅服務截止 2026/10/20</span>
+      <span>契約到期 2026/10/30（結案報告）</span>
+    </div>
+    <div class="stat-boxes">
+      <div class="sb"><div class="sb-v" style="color:var(--ok)" id="st-done">-</div><div class="sb-l">✅ 已進家</div></div>
+      <div class="sb"><div class="sb-v" style="color:var(--sec)" id="st-sch">-</div><div class="sb-l">📅 已排定</div></div>
+      <div class="sb"><div class="sb-v" style="color:var(--warn)" id="st-pend">-</div><div class="sb-l">⏳ 待派案</div></div>
+      <div class="sb"><div class="sb-v" style="color:var(--err)" id="st-left">-</div><div class="sb-l">🎯 尚待完成</div></div>
+    </div>
+  </div>
+
+  <!-- Charts row -->
+  <div class="g2" style="margin-bottom:12px">
+    <div class="cc">
+      <div class="ch"><div class="ct">個案累積進度</div><div class="cs">計畫線 vs 實際 ／ 預測趨勢</div></div>
+      <div class="cv"><canvas id="chProg"></canvas></div>
+    </div>
+    <div class="cc">
+      <div class="ch"><div class="ct">月費用組成</div><div class="cs">有服務月份</div></div>
+      <div class="cv"><canvas id="chCost"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Outreach + burn -->
+  <div class="g2" style="margin-bottom:12px">
+    <div class="cc">
+      <div class="ch"><div class="ct">宣傳說明會記錄</div><div class="cs" id="orSum"></div></div>
+      <div class="scroll-x">
+        <table><thead><tr><th>日期</th><th>宣傳單位</th><th>方式</th><th>觸及人數</th></tr></thead>
+        <tbody id="orTbody"></tbody></table>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:10px">
+        <div class="sb" style="flex:1"><div class="sb-v" style="color:var(--pri)" id="orCnt">-</div><div class="sb-l">總場次</div></div>
+        <div class="sb" style="flex:1"><div class="sb-v" style="color:var(--pri)" id="orPpl">-</div><div class="sb-l">觸及人次</div></div>
+      </div>
+    </div>
+    <div class="cc">
+      <div class="ch"><div class="ct">費用燃燒圖</div><div class="cs">累計支出 vs 預算</div></div>
+      <div class="cv" style="height:150px"><canvas id="chBurn"></canvas></div>
+      <div id="costSum" style="margin-top:10px"></div>
+    </div>
+  </div>
+
+  <!-- Tables -->
+  <div class="g11" style="margin-bottom:12px">
+    <div class="cc">
+      <div class="ch"><div class="ct">月度人事費用</div><div class="cs">醫事×$2,100 ／ 通譯×$1,500</div></div>
+      <div class="scroll-x">
+        <table><thead><tr><th>月份</th><th>醫事場</th><th>醫事費</th><th>通譯場</th><th>通譯費</th><th>薪資</th><th>零用金</th><th>月合計</th></tr></thead>
+        <tbody id="expTbody"></tbody><tfoot id="expFoot"></tfoot></table>
+      </div>
+    </div>
+    <div class="cc">
+      <div class="ch"><div class="ct">進度更新歷程</div><div class="cs">每週回報</div></div>
+      <div class="scroll-x">
+        <table><thead><tr><th>日期</th><th>已進家</th><th>已排定</th><th>待派案</th><th>備註</th></tr></thead>
+        <tbody id="wkTbody"></tbody></table>
+      </div>
+    </div>
+  </div>
+  </div><!-- /progSection -->
+
+  <!-- 重要記事 -->
+  <div class="cc" style="margin-bottom:12px" id="evtSection">
+    <div class="ch"><div class="ct">📌 重要記事</div><div class="cs" id="evtSub"></div></div>
+    <div id="evtList"></div>
+  </div>
+
+</div>
+</div><!-- /vDash -->
+
+<!-- ===== P&L VIEW ===== -->
+<div id="vPL">
+<div class="main">
+  <div class="cc" style="margin-bottom:14px;padding:20px">
+    <div style="display:flex;align-items:flex-start;flex-wrap:wrap;gap:24px">
+      <!-- 大數字 + KPI -->
+      <div style="flex:1;min-width:200px">
+        <div style="font-size:12px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px">專案損益預估</div>
+        <div class="big-num" id="plBigNum" style="color:var(--ok)">計算中…</div>
+        <div class="big-sub" id="plBigSub"></div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:16px">
+          <div class="mg"><div class="mg-v" style="color:var(--sec)" id="pl-rev">-</div><div class="mg-l">合約收入</div></div>
+          <div class="mg"><div class="mg-v" style="color:var(--err)" id="pl-cost">-</div><div class="mg-l">累計支出</div></div>
+          <div class="mg"><div class="mg-v" id="pl-marg">-</div><div class="mg-l">利潤率</div></div>
+          <div class="mg"><div class="mg-v" style="color:var(--pri)" id="pl-medSurplus">-</div><div class="mg-l">服務費毛利</div></div>
+          <div class="mg"><div class="mg-v" style="color:var(--warn)" id="pl-proj">-</div><div class="mg-l">預估完工成本</div></div>
+          <div class="mg"><div class="mg-v" id="pl-projMarg">-</div><div class="mg-l">預估完工利潤率</div></div>
+        </div>
+      </div>
+      <!-- 甜甜圈圖 -->
+      <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap">
+        <div style="position:relative;width:160px;height:160px;flex-shrink:0">
+          <canvas id="chDonut"></canvas>
+          <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none">
+            <div style="font-size:10px;color:var(--gray);text-align:center" id="donutLabel">預估盈餘</div>
+            <div style="font-size:16px;font-weight:700;text-align:center" id="donutVal">—</div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;font-size:11px" id="donutLegend"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pl-grid">
+    <!-- Revenue breakdown -->
+    <div class="pl-card">
+      <div class="pl-t">📥 政府預算（需求說明書 7 項）</div>
+      <div class="pl-row"><span class="pl-lbl">項1 照護指導費（200案×$2,500）</span><span class="pl-val">$500,000</span></div>
+      <div class="pl-row"><span class="pl-lbl">項2 諮詢輔導費（160×$1,000+40×$1,200）</span><span class="pl-val">$208,000</span></div>
+      <div class="pl-row"><span class="pl-lbl">項3 通譯費（200案×$1,500，覈實）</span><span class="pl-val">$300,000</span></div>
+      <div class="pl-row"><span class="pl-lbl">項4 交通費（200案×上限$500，覈實）</span><span class="pl-val">≤$100,000</span></div>
+      <div class="pl-row"><span class="pl-lbl">項5 郵電費（200案×$100）</span><span class="pl-val">$20,000</span></div>
+      <div class="pl-row"><span class="pl-lbl">項6 海報文宣（固定）</span><span class="pl-val">$59,200</span></div>
+      <div class="pl-row"><span class="pl-lbl">項7 管理費（總經費10%，固定）</span><span class="pl-val">$112,800</span></div>
+      <div class="pl-row total"><span>合約總金額（含稅）</span><span style="color:var(--sec)">$1,300,000</span></div>
+      <div style="font-size:10px;color:var(--warn);margin-top:8px">⚠ 各項目不得相互勻支（需求說明書第5條）</div>
+    </div>
+
+    <!-- Actual cost breakdown -->
+    <div class="pl-card">
+      <div class="pl-t">📤 實際支出（已發生）</div>
+      <div id="plActual"></div>
+    </div>
+
+    <!-- Projected cost -->
+    <div class="pl-card">
+      <div class="pl-t">🔮 完工成本預估（200案）</div>
+      <div id="plProjected"></div>
+      <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border)">
+        <div style="font-size:11px;font-weight:700;color:var(--gray);margin-bottom:6px">醫事費用差異</div>
+        <div style="font-size:11px;color:var(--gray);line-height:1.7" id="plMedNote"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- P&L chart -->
+  <div class="cc" style="margin-bottom:12px">
+    <div class="ch"><div class="ct">月度損益走勢</div><div class="cs">各月收支與累計盈餘</div></div>
+    <div class="cv" style="height:230px"><canvas id="chPL"></canvas></div>
+  </div>
+
+  <!-- Monthly P&L table -->
+  <div class="cc">
+    <div class="ch"><div class="ct">月度損益明細</div><div class="cs">收入已按完成比例認列（200案達成時全額收入）</div></div>
+    <div class="scroll-x">
+      <table>
+        <thead><tr><th>月份</th><th>醫事場/費</th><th>通譯場/費</th><th>薪資</th><th>零用金</th><th>月支出合計</th><th>醫事盈餘</th><th>累計支出</th></tr></thead>
+        <tbody id="plTbody"></tbody>
+        <tfoot id="plFoot"></tfoot>
+      </table>
+    </div>
+  </div>
+</div>
+</div><!-- /vPL -->
+
+<!-- ===== ANALYSIS VIEW ===== -->
+<div id="vAna">
+<div class="main">
+  <div class="cc" style="margin-bottom:12px;padding:14px 18px">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+      <div>
+        <div style="font-size:15px;font-weight:700">📊 個案數據分析</div>
+        <div style="font-size:11px;color:var(--gray);margin-top:2px">資料截止 2026/07/17(五)・已服務 108 案</div>
+      </div>
+      <div style="font-size:11px;color:var(--gray);background:#F3F4F6;padding:6px 12px;border-radius:6px">ℹ️ 每次更新個案數據請告知 Claude，Claude 可直接從 Google Drive 同步</div>
+    </div>
+  </div>
+
+  <div class="tnav" id="anaTnav">
+    <button class="tbtn on" onclick="sta('a1',this)">來源 & 國籍</button>
+    <button class="tbtn" onclick="sta('a2',this)">行政區域</button>
+    <button class="tbtn" onclick="sta('a3',this)">前後測</button>
+    <button class="tbtn" onclick="sta('a4',this)">老師統計</button>
+    <button class="tbtn" onclick="sta('a5',this)">📋 個案概況</button>
+    <button class="tbtn" onclick="sta('a6',this)">滿意度</button>
+  </div>
+
+  <!-- Tab 1: 來源 & 國籍 -->
+  <div id="a1" class="tcont on">
+    <div class="g11" style="margin-bottom:12px">
+      <div class="cc">
+        <div class="ch"><div class="ct">案件來源比率</div><div class="cs">共 108 案</div></div>
+        <div id="anaSrcRank" style="padding:4px 0"></div>
+        <div class="cv" style="height:220px;margin-top:14px"><canvas id="anaChSrc"></canvas></div>
+      </div>
+      <div class="cc">
+        <div class="ch"><div class="ct">移工國籍比</div><div class="cs">共 108 案</div></div>
+        <div id="anaNatRank" style="padding:4px 0"></div>
+        <div class="cv" style="height:220px;margin-top:14px"><canvas id="anaChNat"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab 2: 行政區域 -->
+  <div id="a2" class="tcont">
+    <div class="cc" style="margin-bottom:12px">
+      <div class="ch"><div class="ct">行政區域排行</div><div class="cs">26 個行政區・108 案</div></div>
+      <div id="anaDistRank" style="padding:4px 0"></div>
+    </div>
+    <div class="cc">
+      <div class="ch"><div class="ct">行政區域分布</div></div>
+      <div class="cv" style="height:420px"><canvas id="anaChDist"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Tab 3: 前後測 -->
+  <div id="a3" class="tcont">
+    <div class="cc" style="margin-bottom:12px">
+      <div class="ch"><div class="ct">五大指導項前後測平均分數</div><div class="cs">10 分制</div></div>
+      <div class="cv" style="height:280px"><canvas id="anaChScore"></canvas></div>
+    </div>
+    <div class="cc">
+      <div class="ch"><div class="ct">各項指導涵蓋率與配對數明細</div></div>
+      <div id="anaScoreDetail" class="scroll-x"></div>
+    </div>
+  </div>
+
+  <!-- Tab 4: 老師統計 -->
+  <div id="a4" class="tcont">
+    <div class="g11">
+      <div class="cc">
+        <div class="ch"><div class="ct">指導員接案量</div><div class="cs">108 案</div></div>
+        <div class="cv" style="height:280px"><canvas id="anaChTeacher"></canvas></div>
+      </div>
+      <div class="cc">
+        <div class="ch"><div class="ct">通譯老師場次</div><div class="cs">108 場</div></div>
+        <div class="cv" style="height:280px"><canvas id="anaChInterp"></canvas></div>
+      </div>
+    </div>
+    <div class="cc" style="margin-top:12px">
+      <div class="ch"><div class="ct">醫事人員職系比例</div></div>
+      <div id="anaProfDetail" style="padding:4px 0"></div>
+    </div>
+  </div>
+
+  <!-- Tab 5: 個案概況 -->
+  <div id="a5" class="tcont">
+    <div class="g11" style="margin-bottom:12px">
+      <div class="cc">
+        <div class="ch"><div class="ct">個案性別</div><div class="cs">108 案</div></div>
+        <div id="anaGenderRank" style="padding:4px 0"></div>
+        <div class="cv" style="height:200px;margin-top:14px"><canvas id="anaChGender"></canvas></div>
+      </div>
+      <div class="cc">
+        <div class="ch"><div class="ct">移工在台年資</div><div class="cs">108 案</div></div>
+        <div id="anaSenRank" style="padding:4px 0"></div>
+        <div class="cv" style="height:200px;margin-top:14px"><canvas id="anaChSen"></canvas></div>
+      </div>
+    </div>
+    <div class="cc">
+      <div class="ch"><div class="ct">個案年齡分布</div><div class="cs">平均 80.0 歲</div></div>
+      <div id="anaAgeRank" style="padding:4px 0"></div>
+      <div class="cv" style="height:220px;margin-top:14px"><canvas id="anaChAge"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Tab 6: 滿意度 -->
+  <div id="a6" class="tcont">
+    <div class="cc">
+      <div style="padding:48px;text-align:center;color:var(--gray)">
+        <div style="font-size:48px;margin-bottom:16px">📋</div>
+        <div style="font-size:16px;font-weight:700;margin-bottom:8px">移工滿意度 ／ 雇主滿意度</div>
+        <div style="font-size:13px">問卷資料尚未收集完整</div>
+        <div style="font-size:12px;margin-top:8px;color:var(--warn)">⏳ 待問卷回收後，請告知 Claude 統計並更新此頁</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div><!-- /vAna -->
+
+<!-- ===== ADMIN ===== -->
+<div id="vAdmin">
+<div class="main">
+  <div class="adm-hdr">
+    <div><div style="font-size:15px;font-weight:700">⚙️ 後台資料管理</div><div style="font-size:11px;color:var(--gray);margin-top:2px">更新後立即反映在前台儀表板</div></div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-s" onclick="if(confirm('確定還原預設資料？')){localStorage.removeItem(SK);location.reload()}">🔄 還原預設</button>
+      <button class="btn btn-p" onclick="sv('dash')">👁 查看前台</button>
+    </div>
+  </div>
+  <div class="tnav">
+    <button class="tbtn on" onclick="st('tw',this)">📅 週進度</button>
+    <button class="tbtn" onclick="st('tm',this)">💰 月費用</button>
+    <button class="tbtn" onclick="st('to',this)">📢 說明會</button>
+    <button class="tbtn" onclick="st('te',this)">📌 重要記事</button>
+  </div>
+
+  <div id="tw" class="tcont on">
+    <div class="fsec">
+      <div class="fst">新增週進度更新</div>
+      <div class="fgrid">
+        <div class="fg"><label>更新日期</label><input type="date" id="wDate"></div>
+        <div class="fg"><label>已進家（累計）</label><input type="number" id="wDone" min="0" max="200" placeholder="如：108"></div>
+        <div class="fg"><label>已排定</label><input type="number" id="wSch" min="0" placeholder="如：13"></div>
+        <div class="fg"><label>待派案</label><input type="number" id="wPend" min="0" placeholder="如：20"></div>
+        <div class="fg full"><label>備註</label><input type="text" id="wNote" placeholder="例：達標、特殊狀況…"></div>
+      </div>
+      <button class="btn btn-p" onclick="addWeekly()">✅ 新增記錄</button>
+      <div class="ok-msg" id="wOk">✅ 已儲存！</div>
+    </div>
+    <div class="fsec">
+      <div class="fst">更新歷程</div>
+      <div class="scroll-x">
+        <table><thead><tr><th>日期</th><th>已進家</th><th>已排定</th><th>待派案</th><th>備註</th><th>操作</th></tr></thead>
+        <tbody id="admWk"></tbody></table>
+      </div>
+    </div>
+  </div>
+
+  <div id="tm" class="tcont">
+    <div class="fsec">
+      <div class="fst">新增 / 覆蓋月度費用</div>
+      <div class="fgrid">
+        <div class="fg"><label>月份</label><input type="month" id="mMon" value="2026-07"></div>
+        <div class="fg"><label>醫事場次</label><input type="number" id="mMS" min="0" oninput="calcCost()" placeholder="0"></div>
+        <div class="fg"><label>醫事費（自動）</label><input type="number" id="mMC" placeholder="場次×$2,100"></div>
+        <div class="fg"><label>通譯場次</label><input type="number" id="mTS" min="0" oninput="calcCost()" placeholder="0"></div>
+        <div class="fg"><label>通譯費（自動）</label><input type="number" id="mTC" placeholder="場次×$1,500"></div>
+        <div class="fg"><label>人員薪資</label><input type="number" id="mSt" value="40000" min="0"></div>
+        <div class="fg"><label>零用金支出</label><input type="number" id="mPt" min="0" placeholder="0"></div>
+        <div class="fg full"><label>備註</label><input type="text" id="mNote" placeholder="例：已收第一期款…"></div>
+      </div>
+      <div class="calc-tip" id="calcTip">輸入場次後自動計算費用</div>
+      <button class="btn btn-p" onclick="saveExp()">💾 儲存月度費用</button>
+      <div class="ok-msg" id="mOk">✅ 已儲存！</div>
+    </div>
+    <div class="fsec">
+      <div class="fst">月度費用記錄</div>
+      <div class="scroll-x">
+        <table><thead><tr><th>月份</th><th>醫事場</th><th>醫事費</th><th>通譯場</th><th>通譯費</th><th>薪資</th><th>零用金</th><th>合計</th><th>備註</th><th>操作</th></tr></thead>
+        <tbody id="admExp"></tbody></table>
+      </div>
+    </div>
+  </div>
+
+  <div id="to" class="tcont">
+    <div class="fsec">
+      <div class="fst">新增說明會記錄</div>
+      <div class="fgrid">
+        <div class="fg"><label>日期</label><input type="date" id="oDate"></div>
+        <div class="fg" style="grid-column:span 2"><label>宣傳單位</label><input type="text" id="oOrg" placeholder="財團法人高雄市…"></div>
+        <div class="fg"><label>方式</label><select id="oMeth"><option>線上</option><option>現場</option><option>混合</option></select></div>
+        <div class="fg"><label>觸及人數</label><input type="number" id="oHc" min="0" placeholder="0"></div>
+        <div class="fg full"><label>案源備註</label><input type="text" id="oSrc" placeholder="例：電子宣傳、個管師介紹…"></div>
+      </div>
+      <button class="btn btn-p" onclick="addOutreach()">➕ 新增</button>
+      <div class="ok-msg" id="oOk">✅ 已新增！</div>
+    </div>
+    <div class="fsec">
+      <div class="fst">說明會記錄</div>
+      <div class="scroll-x">
+        <table><thead><tr><th>日期</th><th>單位</th><th>方式</th><th>人數</th><th>備註</th><th>操作</th></tr></thead>
+        <tbody id="admOr"></tbody></table>
+      </div>
+    </div>
+  </div>
+
+  <!-- 重要記事 -->
+  <div id="te" class="tcont">
+    <div class="fsec">
+      <div class="fst">新增重要記事</div>
+      <div class="fgrid">
+        <div class="fg"><label>日期</label><input type="date" id="eDate"></div>
+        <div class="fg" style="grid-column:span 2"><label>標題</label><input type="text" id="eTitle" placeholder="例：Amber正式接高雄到宅、政府突發通知插隊12案…"></div>
+        <div class="fg full"><label>說明</label><input type="text" id="eNote" placeholder="詳細說明（選填）"></div>
+      </div>
+      <button class="btn btn-p" onclick="addEvent()">📌 新增記事</button>
+      <div class="ok-msg" id="eOk">✅ 已新增！</div>
+    </div>
+    <div class="fsec">
+      <div class="fst">記事列表</div>
+      <div class="scroll-x">
+        <table><thead><tr><th>日期</th><th>標題</th><th>說明</th><th>操作</th></tr></thead>
+        <tbody id="admEv"></tbody></table>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+Chart.register(ChartDataLabels);
+const SK='kh_dash_v4';
+const BUDGET=1300000,TARGET=200,STAFF=40000;
+// 需求說明書 經費概算表 7個項目
+const CARE_BUD=2500;         // 項1 照護指導費 政府補助/案
+const CONSULT1=1000;         // 項2 諮詢輔導費 前160案
+const CONSULT2=1200;         // 項2 諮詢輔導費 161-200案（加成20%）
+const CONSULT_THR=160;       // 項2 門檻
+const MED_RATE=2100;         // 項1 醫事人員實付/場
+const TR_RATE=1500;          // 項3 通譯費（政府補助=實付，收支相抵）
+const TRANSPORT_BUD=500;     // 項4 交通費預算/案（覈實支付，上限$500）
+const POSTAL_BUD=100;        // 項5 郵電費預算/案
+const MARKETING_BUD=59200;   // 項6 海報文宣 固定預算
+const MGMT_FEE=112800;       // 項7 管理費（總經費10%）
+const MED_BUD=CARE_BUD;      // 舊版相容
+const DEADLINE_INT='2026-09-30'; // 內部衝刺目標截止日（09/30達200案）
+const PROJ_START='2026-04-01';   // when service cases started
+
+function defData(){return{
+  settings:{goalTarget:200,goalDeadline:'2026-09-30'},
+  weekly:[
+    {date:'2026-06-10',done:84,sch:11,pend:36,note:'第一期查驗達標 ✓（目標44案，實服84案）'},
+    {date:'2026-07-17',done:108,sch:13,pend:20,note:'7月週會，4-7月目標120案達標 ✓'}
+  ],
+  expenses:[
+    {m:'2026-01',ms:0,mc:0,ts:0,tc:0,st:40000,pt:2717,note:'印花稅+契約書印刷+郵資'},
+    {m:'2026-02',ms:0,mc:0,ts:0,tc:0,st:40000,pt:0,note:'宣傳準備期'},
+    {m:'2026-03',ms:0,mc:0,ts:0,tc:0,st:40000,pt:1961,note:'文宣品寄送、說明會準備'},
+    {m:'2026-04',ms:15,mc:31500,ts:15,tc:22500,st:40000,pt:1472,note:'首月服務（001-015案）'},
+    {m:'2026-05',ms:55,mc:115500,ts:55,tc:82500,st:40000,pt:2092,note:'服務高峰（估016-070案）'},
+    {m:'2026-06',ms:41,mc:86100,ts:41,tc:61500,st:40000,pt:494,note:'6/10第一期查驗通過，撥款已收'},
+    {m:'2026-07',ms:12,mc:25200,ts:12,tc:18000,st:40000,pt:60,note:'進行中（截至7/17）'}
+  ],
+  outreach:[
+    {date:'2026-04-14',org:'財團法人高雄市郭吳麗珠社會福利慈善事業基金會',meth:'線上',hc:15,src:'電子宣傳，朱俐錦個管來電'},
+    {date:'2026-04-29',org:'社團法人高雄市受恩社區關懷協會',meth:'線上',hc:12,src:'電子宣傳，單位來電詢問'},
+    {date:'2026-05-14',org:'爾嘉居家護理所（小港分區+苓雅分區）',meth:'線上',hc:20,src:'周玉娟護理師友人，林曉玲個管師'},
+    {date:'2026-05-25',org:'社團法人高雄長期照顧人員福利促進協會',meth:'線上',hc:15,src:'電子宣傳，楊如惠個管來電'},
+    {date:'2026-06-16',org:'高雄市就業服務商業同業公會',meth:'現場（高雄福華飯店）',hc:150,src:'高雄承辦分享，公會秘書邀請'},
+    {date:'2026-06-30',org:'財團法人高雄市華仁社會福利慈善事業基金會',meth:'線上',hc:12,src:'電子宣傳，黃潔慧個管來電'}
+  ],
+  events:DEFAULT_EVENTS
+}}
+
+const DEFAULT_EVENTS=[
+  {date:'2025-11-14',title:'取得標書',note:''},
+  {date:'2025-12-05',title:'開標日',note:''},
+  {date:'2025-12-17',title:'評選-第2次內部答詢檢核點',note:''},
+  {date:'2025-12-22',title:'評選日',note:''},
+  {date:'2026-01-15',title:'決標日',note:''},
+  {date:'2026-01-19',title:'契約書製作',note:''},
+  {date:'2026-02-09',title:'計畫人員第一次核備',note:''},
+  {date:'2026-02-12',title:'文宣海報製作定案',note:''},
+  {date:'2026-02-13',title:'進家橘色背心定案',note:''},
+  {date:'2026-03-11',title:'與老師召開高雄到宅說明會',note:'說明計畫簡介、服務流程、注意事項'},
+  {date:'2026-03-16',title:'Amber正式接高雄到宅',note:'開始負責115年度外國人從事家庭看護工作補充訓練計畫'},
+  {date:'2026-03-19',title:'高雄到宅窗口交接',note:'正式由沈芊佑交接給徐靖雯'},
+  {date:'2026-03-24',title:'政府承辦(儷菳)收到核備物資',note:'筆記本等兩箱'},
+  {date:'2026-04-01',title:'第一次回復收案數據・專案正式啟動',note:'高雄市政府勞工局委託案，目標200案，截止10/20'},
+  {date:'2026-04-14',title:'說明會：郭吳麗珠社會福利慈善事業基金會',note:'線上，15人'},
+  {date:'2026-04-22',title:'計畫人員二次核備',note:''},
+  {date:'2026-04-29',title:'說明會：受恩社區關懷協會',note:'線上，12人'},
+  {date:'2026-04-30',title:'製作結訓證書範本',note:''},
+  {date:'2026-05-12',title:'特殊狀況回報',note:'個案：姜文潮'},
+  {date:'2026-05-14',title:'說明會：爾嘉居家護理所（小港+苓雅）',note:'線上，20人'},
+  {date:'2026-05-25',title:'說明會：高雄長期照顧人員福利促進協會',note:'線上，15人'},
+  {date:'2026-06-01',title:'政府安排12位個案優先插隊',note:'高雄市政府安排12位個案報名，需優先處理'},
+  {date:'2026-06-10',title:'第一期查驗通過・第一次核銷',note:'實服84案（目標44案），撥款已收'},
+  {date:'2026-06-16',title:'說明會：高雄市就業服務商業同業公會',note:'現場（高雄福華飯店），150人'},
+  {date:'2026-06-18',title:'高雄到宅第一期撥款（29萬1,368元）',note:''},
+  {date:'2026-06-23',title:'高雄到宅核銷公文確認',note:''},
+  {date:'2026-06-26',title:'颱風天停班停課',note:''},
+  {date:'2026-06-30',title:'說明會：華仁社會福利慈善事業基金會',note:'線上，12人'},
+  {date:'2026-07-01',title:'曾榮慶組長要求加速進家速度',note:'高雄政府-曾榮慶組長提出希望加速個案進家速度'},
+  {date:'2026-07-08',title:'老師反映移工被不當對待',note:'已加強宣導1955專線'},
+  {date:'2026-07-11',title:'颱風天停班停課',note:''}
+];
+const EVENTS_VER=4;
+
+function ld(){
+  try{
+    const s=localStorage.getItem(SK);
+    if(s){
+      const d=JSON.parse(s);
+      // 遷移：更新重要記事
+      if((d.eventsVer||0)<EVENTS_VER){
+        d.events=DEFAULT_EVENTS;
+        d.eventsVer=EVENTS_VER;
+        localStorage.setItem(SK,JSON.stringify(d));
+      }
+      return d;
+    }
+  }catch(e){}
+  return defData();
+}
+function sv2(d){localStorage.setItem(SK,JSON.stringify(d))}
+function fmt(n){return Number(n||0).toLocaleString('zh-TW')}
+function fdt(d){return(d||'').replace(/-/g,'/')}
+function fmo(m){if(!m)return'';const[y,mo]=m.split('-');return parseInt(mo)+'月'}
+function fmy(m){if(!m)return'';const[y,mo]=m.split('-');return y+'年'+parseInt(mo)+'月'}
+const WD=['日','一','二','三','四','五','六'];
+function fwd(d){if(!d)return'';const dt=new Date(d+'T00:00:00');return fdt(d)+'('+WD[dt.getDay()]+')'}
+
+// ===== VIEW SWITCH =====
+function sv(v){
+  document.getElementById('vDash').style.display=v==='dash'?'block':'none';
+  document.getElementById('vPL').style.display=v==='pl'?'block':'none';
+  document.getElementById('vAna').style.display=v==='ana'?'block':'none';
+  document.getElementById('vAdmin').style.display=v==='admin'?'block':'none';
+  const views=['dash','pl','ana','admin'];
+  document.querySelectorAll('.vbtn').forEach((b,i)=>b.classList.toggle('on',views[i]===v));
+  if(v==='dash'){renderDash();setTimeout(drawDashCharts,150)}
+  if(v==='pl'){renderPL();setTimeout(drawPLChart,150)}
+  if(v==='ana'){setTimeout(drawAnaCharts,150)}
+}
+function st(id,el){
+  document.querySelectorAll('.tcont').forEach(t=>t.classList.remove('on'));
+  document.querySelectorAll('.tbtn').forEach(b=>b.classList.remove('on'));
+  document.getElementById(id).classList.add('on');el.classList.add('on');
+}
+
+// ===== RISK ANALYSIS =====
+// 紅綠燈邏輯（依累積達標率）：
+//   🟢 >110%：超前，你最棒！愛的鼓勵一起來！
+//   🟡 95%-110%：再靠近一點點，就讓你達標
+//   🔴 <95%：高度風險，需最高決策層介入重新分配資源
+function calcRisk(data){
+  const cfg=(data.settings)||{};
+  const goal=cfg.goalTarget||TARGET;
+  const deadlineStr=cfg.goalDeadline||DEADLINE_INT;
+
+  const wk=[...data.weekly].sort((a,b)=>a.date.localeCompare(b.date));
+  const lat=wk[wk.length-1]||{done:0,sch:0,pend:0,date:'2026-07-17'};
+  const latDate=new Date(lat.date);
+  const today=new Date(); today.setHours(0,0,0,0); // 今天（動態）
+  const deadlineDate=new Date(deadlineStr);
+  const startDate=new Date(PROJ_START);
+
+  // 計畫線：以今天實際日期計算應完成案數
+  const totalProjectDays=Math.max(1,Math.ceil((deadlineDate-startDate)/86400000));
+  const elapsedDaysToday=Math.max(1,Math.ceil((today-startDate)/86400000));
+  const elapsedDaysLat=Math.max(1,Math.ceil((latDate-startDate)/86400000));
+  const daysLeft=Math.max(0,Math.ceil((deadlineDate-today)/86400000));
+  const dailyBaseline=goal/totalProjectDays;
+
+  // 今日應完成案數（用今天算）
+  const expectedByNow=dailyBaseline*elapsedDaysToday;
+
+  // 進度比 = 上次回報實際 / 今日應完成
+  const ratio=lat.done/Math.max(1,expectedByNow);
+
+  // 輔助速率（顯示用）
+  const prev=wk.length>=2?wk[wk.length-2]:{done:0,date:PROJ_START};
+  const daysBetween=Math.max(1,Math.ceil((latDate-new Date(prev.date))/86400000));
+  const recentRate=(lat.done-prev.done)/daysBetween;
+  const overallRate=lat.done/elapsedDaysLat;
+  const casesLeft=Math.max(0,goal-lat.done);
+  const reqRate=daysLeft>0?casesLeft/daysLeft:999;
+  const useRate=recentRate>0?recentRate:overallRate;
+  const daysToFinish=useRate>0?Math.ceil(casesLeft/useRate):999;
+  const projDate=new Date(today);projDate.setDate(projDate.getDate()+daysToFinish);
+  const projStr=projDate.toISOString().split('T')[0];
+  const deadlineFmt=deadlineStr.replace(/-/g,'/').replace(/^20\d\d\//,'');
+  const latFmt=lat.date.replace(/^20\d\d-/,'').replace('-','/');
+
+  // 燈號（以 pct 判斷確保燈色與顯示數字一致）
+  let risk,light,title,sub;
+  const pct=Math.round(ratio*100);
+  if(pct>110){
+    risk='green';light='🟢';
+    title=`進度比 ${pct}%（>110%）：超前，你最棒！愛的鼓勵一起來！`;
+    sub=`今日應達 ${Math.round(expectedByNow)} 案，上次回報（${latFmt}）實際完成 ${lat.done} 案`
+  } else if(pct>=95){
+    risk='yellow';light='🟡';
+    title=`進度比 ${pct}%（95%-110%）：再靠近一點點，就讓你達標`;
+    sub=`今日應達 ${Math.round(expectedByNow)} 案，上次回報（${latFmt}）實際完成 ${lat.done} 案`
+  } else{
+    risk='red';light='🔴';
+    title=`進度比 ${pct}%（<95%）：高風險，請用趕投胎的速度加速派案`;
+    sub=`今日應達 ${Math.round(expectedByNow)} 案，上次回報（${latFmt}）實際完成 ${lat.done} 案`
+  }
+
+  // 閾值區間：用 floor 確保與燈色判斷一致（floor+1 才是綠燈最小值）
+  const greenMin=Math.floor(expectedByNow*1.1)+1;
+  const yellowLow=Math.ceil(expectedByNow*0.95);
+  const yellowHigh=Math.floor(expectedByNow*1.1);
+
+  return{daysLeft,casesLeft,goal,deadlineStr,
+    expectedByNow:Math.round(expectedByNow),actual:lat.done,ratio,pct,
+    greenMin,yellowLow,yellowHigh,latFmt,
+    reqRate,useRate,overallRate,recentRate,projDate:projStr,
+    risk,light,title,sub,lat}
+}
+
+// ===== RENDER DASHBOARD =====
+function renderDash(){
+  const data=ld();
+  const mSel=document.getElementById('mSel').value;
+  const exp=[...data.expenses].sort((a,b)=>a.m.localeCompare(b.m));
+  const wk=[...data.weekly].sort((a,b)=>a.date.localeCompare(b.date));
+  const lat=wk[wk.length-1]||{done:0,sch:0,pend:0,date:'2026-07-17'};
+
+  // Populate month dropdown
+  const sel=document.getElementById('mSel');
+  const cur=sel.value;
+  sel.innerHTML='<option value="">全部總覽</option>';
+  exp.forEach(e=>{const o=document.createElement('option');o.value=e.m;o.textContent=fmy(e.m);sel.appendChild(o)});
+  sel.value=cur;
+
+  document.getElementById('lblUpd').textContent='最後更新：'+fdt(lat.date);
+
+  // Risk banner
+  const risk=calcRisk(data);
+  const rb=document.getElementById('riskBar');
+  rb.className='risk-bar '+risk.risk;
+  document.getElementById('riskLight').textContent=risk.light;
+  document.getElementById('riskTitle').textContent=risk.title;
+  document.getElementById('riskSub').textContent=risk.sub;
+  const ratioColor=risk.risk==='green'?'var(--ok)':risk.risk==='yellow'?'var(--warn)':'var(--err)';
+  const deadlineLbl=(risk.deadlineStr||DEADLINE_INT).replace(/^20\d\d-/,'').replace('-','/');
+  const goalTarget=risk.goal||TARGET;
+  updateSettingsDisplay(data);
+  const gapToday=Math.max(0,risk.expectedByNow-risk.actual);
+  // 紅燈時即使差值湊巧為0也不顯示✓（防止燈色與勾打架）
+  const gapDone=gapToday===0&&risk.risk!=='red';
+  const gapColor=gapDone?'var(--ok)':gapToday<=10?'var(--warn)':'var(--err)';
+  document.getElementById('riskStats').innerHTML=`
+    <div class="rs" title="今天此刻，依均速應累積完成的進家案數"><div class="rs-v" style="color:var(--gray)">${risk.expectedByNow}</div><div class="rs-l">今日應完成案數</div></div>
+    <div class="rs" title="上次週進度回報的實際進家案數"><div class="rs-v" style="color:var(--ok)">${risk.actual}</div><div class="rs-l">實際累積（${risk.latFmt}）</div></div>
+    <div class="rs" title="今日應完成 − 實際累積，需補足的案數"><div class="rs-v" style="color:${gapColor}">${gapDone?'✓':'+'+gapToday}</div><div class="rs-l">今日需努力案數</div></div>
+    <div class="rs" title="實際完成 ÷ 今日應完成。>110%=🟢，95-110%=🟡，<95%=🔴"><div class="rs-v" style="color:${ratioColor};font-size:24px">${risk.pct}%</div><div class="rs-l">今日達成率 ${risk.light}</div></div>
+    <div class="rs"><div class="rs-v">${risk.daysLeft}</div><div class="rs-l">距${deadlineLbl}天數</div></div>
+    <div class="rs"><div class="rs-v">${risk.casesLeft}</div><div class="rs-l">剩餘案數</div></div>
+    <div class="rs"><div class="rs-v">${(risk.deadlineStr||DEADLINE_INT).replace(/^20\d\d-/,'').replace('-','/')}</div><div class="rs-l">目標完工日</div></div>`;
+
+  // 今日燈號個案閾值
+  document.getElementById('riskThresh').innerHTML=`
+    <span style="color:var(--ok);font-weight:700">🟢 達綠燈：≥ ${risk.greenMin} 案</span>
+    <span style="margin:0 10px;color:var(--border)">｜</span>
+    <span style="color:var(--warn);font-weight:700">🟡 黃燈區間：${risk.yellowLow} – ${risk.yellowHigh} 案</span>
+    <span style="margin:0 10px;color:var(--border)">｜</span>
+    <span style="color:var(--err);font-weight:700">🔴 紅燈：< ${risk.yellowLow} 案</span>`;
+
+  const orTotal=(data.outreach||[]).reduce((s,o)=>s+o.hc,0);
+
+  // ===== MONTH FILTER MODE =====
+  if(mSel){
+    const me=exp.find(e=>e.m===mSel)||{ms:0,mc:0,ts:0,tc:0,st:40000,pt:0,note:''};
+    const monthTot=me.mc+me.tc+me.st+me.pt;
+    document.getElementById('fbarBadge').textContent=fmo(mSel)+' 明細';
+    document.getElementById('mcard').style.display='block';
+    document.getElementById('mcardTitle').textContent=fmy(mSel)+' 快覽';
+    document.getElementById('mcardGrid').innerHTML=`
+      <div class="mg"><div class="mg-v" style="color:var(--pri)">${me.ms}</div><div class="mg-l">醫事場次</div></div>
+      <div class="mg"><div class="mg-v" style="color:var(--err)">$${fmt(me.mc)}</div><div class="mg-l">醫事費用</div></div>
+      <div class="mg"><div class="mg-v" style="color:var(--sec)">${me.ts}</div><div class="mg-l">通譯場次</div></div>
+      <div class="mg"><div class="mg-v" style="color:var(--err)">$${fmt(me.tc)}</div><div class="mg-l">通譯費用</div></div>
+      <div class="mg"><div class="mg-v" style="color:var(--ok)">$${fmt(monthTot)}</div><div class="mg-l">本月總支出</div></div>`;
+
+    // KPIs for this month
+    const medSurplus=(MED_BUD-MED_RATE)*me.ms;
+    document.getElementById('krow').innerHTML=`
+      <div class="kc info"><div class="kl">醫事場次</div><div class="kv">${me.ms} 場</div><div class="ks">費用 $${fmt(me.mc)}</div></div>
+      <div class="kc"><div class="kl">醫事盈餘</div><div class="kv" style="color:var(--ok)">$${fmt(medSurplus)}</div><div class="ks">政府補$2,500，付$2,100</div></div>
+      <div class="kc info"><div class="kl">通譯場次</div><div class="kv">${me.ts} 場</div><div class="ks">費用 $${fmt(me.tc)}</div></div>
+      <div class="kc gray"><div class="kl">人員薪資</div><div class="kv">$${fmt(me.st)}</div><div class="ks">徐靖雯</div></div>
+      <div class="kc gray"><div class="kl">零用金雜支</div><div class="kv">$${fmt(me.pt)}</div><div class="ks">${me.note||'—'}</div></div>
+      <div class="kc err"><div class="kl">本月支出合計</div><div class="kv">$${fmt(monthTot)}</div><div class="ks">預算佔比 ${(monthTot/BUDGET*100).toFixed(1)}%</div></div>`;
+    document.getElementById('progSection').style.display='none';
+    return;
+  }
+
+  // ===== ALL MODE =====
+  document.getElementById('fbarBadge').textContent='全案彙總';
+  document.getElementById('mcard').style.display='none';
+  document.getElementById('progSection').style.display='block';
+
+  const totMC=exp.reduce((s,e)=>s+e.mc,0);
+  const totTC=exp.reduce((s,e)=>s+e.tc,0);
+  const totSt=exp.reduce((s,e)=>s+e.st,0);
+  const totPt=exp.reduce((s,e)=>s+e.pt,0);
+  const totAll=totMC+totTC+totSt+totPt;
+  const pct=Math.round(lat.done/Math.max(1,goalTarget)*100);
+
+  document.getElementById('krow').innerHTML=`
+    <div class="kc ok"><div class="kl">已服務個案</div><div class="kv">${lat.done} 案</div><div class="ks">目標 ${goalTarget} 案</div><span class="badge b-ok">${pct}% 完成</span></div>
+    <div class="kc ${risk.risk==='red'?'err':risk.risk==='yellow'?'warn':'ok'}"><div class="kl">距${deadlineLbl}剩餘</div><div class="kv">${risk.daysLeft} 天</div><div class="ks">尚需 ${risk.casesLeft} 案</div><span class="badge ${risk.risk==='red'?'b-err':risk.risk==='yellow'?'b-warn':'b-ok'}">${risk.light} ${risk.risk==='red'?'高風險':risk.risk==='yellow'?'注意':'安全'}</span></div>
+    <div class="kc"><div class="kl">本案總標價</div><div class="kv">$1,300,000</div><div class="ks">含稅</div></div>
+    <div class="kc info"><div class="kl">說明會觸及</div><div class="kv">${orTotal} 人次</div><div class="ks">${(data.outreach||[]).length} 場</div></div>
+    <div class="kc"><div class="kl">累計人事費用</div><div class="kv">$${fmt(totMC+totTC)}</div><div class="ks">醫事+通譯</div></div>
+    <div class="kc err"><div class="kl">累計總支出</div><div class="kv">$${fmt(totAll)}</div><div class="ks">${(totAll/BUDGET*100).toFixed(1)}% 預算</div></div>`;
+
+  // Progress bar
+  const pFill=document.getElementById('pFill');
+  pFill.style.width=pct+'%';pFill.textContent=pct>=8?pct+'%':'';
+  document.getElementById('pgLbl').textContent=lat.done+' / '+goalTarget+' 案';
+  document.getElementById('st-done').textContent=lat.done;
+  document.getElementById('st-sch').textContent=lat.sch;
+  document.getElementById('st-pend').textContent=lat.pend;
+  document.getElementById('st-left').textContent=goalTarget-lat.done;
+
+  // Weekly table
+  document.getElementById('wkTbody').innerHTML=[...wk].reverse().map(u=>`
+    <tr><td><strong>${fwd(u.date)}</strong></td><td><strong style="color:var(--ok)">${u.done}</strong></td>
+    <td>${u.sch}</td><td>${u.pend}</td><td style="color:var(--gray);font-size:11px">${u.note}</td></tr>`).join('');
+
+  // Expense table
+  let tMS=0,tMC=0,tTS=0,tTC=0,tSt=0,tPt=0;
+  document.getElementById('expTbody').innerHTML=exp.map(e=>{
+    const t=e.mc+e.tc+e.st+e.pt;tMS+=e.ms;tMC+=e.mc;tTS+=e.ts;tTC+=e.tc;tSt+=e.st;tPt+=e.pt;
+    return`<tr><td><strong>${fmo(e.m)}</strong></td><td>${e.ms}</td><td>$${fmt(e.mc)}</td>
+    <td>${e.ts}</td><td>$${fmt(e.tc)}</td><td>$${fmt(e.st)}</td><td>$${fmt(e.pt)}</td>
+    <td><strong>$${fmt(t)}</strong></td></tr>`;
+  }).join('');
+  const gTotal=tMC+tTC+tSt+tPt;
+  document.getElementById('expFoot').innerHTML=`<tr style="background:#F9FAFB;font-weight:700">
+    <td>合計</td><td>${tMS}</td><td>$${fmt(tMC)}</td><td>${tTS}</td><td>$${fmt(tTC)}</td>
+    <td>$${fmt(tSt)}</td><td>$${fmt(tPt)}</td><td style="color:var(--pri)">$${fmt(gTotal)}</td></tr>`;
+
+  // Outreach
+  const ors=[...(data.outreach||[])].sort((a,b)=>a.date.localeCompare(b.date));
+  document.getElementById('orTbody').innerHTML=ors.map(o=>`
+    <tr><td>${fwd(o.date)}</td><td style="font-size:11px">${o.org}</td>
+    <td><span class="badge ${o.meth.includes('現場')?'b-warn':'b-info'}">${o.meth}</span></td>
+    <td><strong>${o.hc}</strong> 人</td></tr>`).join('');
+  document.getElementById('orCnt').textContent=(data.outreach||[]).length+' 場';
+  document.getElementById('orPpl').textContent=orTotal+' 人';
+  document.getElementById('orSum').textContent=(data.outreach||[]).length+' 場，共 '+orTotal+' 人次';
+
+  // Cost summary
+  document.getElementById('costSum').innerHTML=`
+    <div class="crow"><span style="color:var(--gray)">醫事費用</span><span><strong>$${fmt(totMC)}</strong></span><span style="font-size:10px;color:var(--gray)">${(totMC/BUDGET*100).toFixed(1)}%</span></div>
+    <div class="crow"><span style="color:var(--gray)">通譯費用</span><span><strong>$${fmt(totTC)}</strong></span><span style="font-size:10px;color:var(--gray)">${(totTC/BUDGET*100).toFixed(1)}%</span></div>
+    <div class="crow"><span style="color:var(--gray)">薪資</span><span><strong>$${fmt(totSt)}</strong></span><span style="font-size:10px;color:var(--gray)">${(totSt/BUDGET*100).toFixed(1)}%</span></div>
+    <div class="crow"><span style="color:var(--gray)">零用金</span><span><strong>$${fmt(totPt)}</strong></span><span style="font-size:10px;color:var(--gray)">${(totPt/BUDGET*100).toFixed(1)}%</span></div>
+    <div class="crow" style="border-top:1px solid var(--border);margin-top:4px;padding-top:6px">
+      <span style="font-weight:700">累計總支出</span><span style="color:var(--pri);font-weight:700">$${fmt(gTotal)}</span>
+      <span style="font-size:10px;color:var(--gray)">${(gTotal/BUDGET*100).toFixed(1)}%</span>
+    </div>
+    <div class="mini-bar"><div class="mini-fill" style="width:${Math.min(100,(gTotal/BUDGET*100).toFixed(1))}%;background:var(--pri)"></div></div>`;
+
+  renderAdminTbls(data);
+  renderEvents(data);
+}
+
+// ===== P&L VIEW =====
+// 收入計算：依實際完成案數，按需求說明書7項預算認列
+function calcRevAtCases(n){
+  const care=Math.min(n,TARGET)*CARE_BUD;
+  const consult=Math.min(n,CONSULT_THR)*CONSULT1+Math.max(0,Math.min(n,TARGET)-CONSULT_THR)*CONSULT2;
+  const transl=Math.min(n,TARGET)*TR_RATE;
+  const transport=Math.min(n,TARGET)*TRANSPORT_BUD;
+  const postal=Math.min(n,TARGET)*POSTAL_BUD;
+  return{care,consult,transl,transport,postal,fixed:MARKETING_BUD+MGMT_FEE,
+    total:care+consult+transl+transport+postal+MARKETING_BUD+MGMT_FEE};
+}
+
+function renderPL(){
+  const data=ld();
+  const exp=[...data.expenses].sort((a,b)=>a.m.localeCompare(b.m));
+  const wk=[...data.weekly].sort((a,b)=>a.date.localeCompare(b.date));
+  const lat=wk[wk.length-1]||{done:108,date:'2026-07-17'};
+
+  // 累計實際支出
+  const totMS=exp.reduce((s,e)=>s+e.ms,0);
+  const totMC=exp.reduce((s,e)=>s+e.mc,0);
+  const totTS=exp.reduce((s,e)=>s+e.ts,0);
+  const totTC=exp.reduce((s,e)=>s+e.tc,0);
+  const totSt=exp.reduce((s,e)=>s+e.st,0);
+  const totPt=exp.reduce((s,e)=>s+e.pt,0);
+  const totCost=totMC+totTC+totSt+totPt;
+
+  // 完工預估成本（剩餘92案）
+  const remCases=Math.max(0,TARGET-lat.done);
+  const avgMedPerCase=totMS/Math.max(1,lat.done);
+  const avgTrPerCase=totTS/Math.max(1,lat.done);
+  const remMedSes=Math.round(avgMedPerCase*remCases);
+  const remTrSes=Math.round(avgTrPerCase*remCases);
+  const remMonths=Math.max(1,Math.ceil((new Date(DEADLINE_INT)-new Date(lat.date))/86400000/30));
+  const remPt=lat.done>0?Math.round(totPt/lat.done*remCases):0;
+  const projCost=totCost+(remMedSes*MED_RATE)+(remTrSes*TR_RATE)+(remMonths*STAFF)+remPt;
+
+  // 收入結構（依需求說明書7項）
+  const revFull=calcRevAtCases(TARGET);  // 200案完工總收入
+  const projProfit=revFull.total-projCost;
+  const projMarg=(projProfit/revFull.total*100).toFixed(1);
+
+  // 服務費差額（項1+項2 vs 醫事人員成本）
+  // 同一趟進家服務同時產生照護指導費+諮詢輔導費
+  const revPerCase200=CARE_BUD+CONSULT1;   // 前160案每案收入 $3,500
+  const revPerCase40=CARE_BUD+CONSULT2;    // 後40案每案收入 $3,700
+  const servRevFull=CONSULT_THR*revPerCase200+(TARGET-CONSULT_THR)*revPerCase40; // $708,000
+  const servCostFull=TARGET*MED_RATE;   // $420,000
+  const servMargin=servRevFull-servCostFull; // $288,000 服務毛利
+
+  // 管理費 vs 薪資
+  const projSalary=totSt+(remMonths*STAFF);
+  const mgmtBalance=MGMT_FEE-projSalary;   // 管理費預算 - 薪資總計
+
+  // 大數字
+  const pn=document.getElementById('plBigNum');
+  pn.textContent=(projProfit>=0?'+ ':'− ')+'$'+fmt(Math.abs(Math.round(projProfit)));
+  pn.style.color=projProfit>=0?'var(--ok)':'var(--err)';
+  document.getElementById('plBigSub').textContent='預估完工後盈餘（200案完成，依需求說明書7項計算）';
+
+  document.getElementById('pl-rev').textContent='$'+fmt(revFull.total);
+  document.getElementById('pl-cost').textContent='$'+fmt(totCost);
+  const curProfit=revFull.total-totCost;
+  const curMarg=(curProfit/revFull.total*100).toFixed(1);
+  document.getElementById('pl-marg').textContent=curMarg+'%';
+  document.getElementById('pl-marg').style.color=curProfit>=0?'var(--ok)':'var(--err)';
+  document.getElementById('pl-medSurplus').textContent='$'+fmt(Math.round(servMargin));
+  document.getElementById('pl-medSurplus').parentElement.querySelector('.mg-l').textContent='服務費毛利（200案）';
+  document.getElementById('pl-proj').textContent='$'+fmt(Math.round(projCost));
+  document.getElementById('pl-projMarg').textContent=projMarg+'%';
+  document.getElementById('pl-projMarg').style.color=projProfit>=0?'var(--ok)':'var(--err)';
+
+  // 實際支出區塊
+  document.getElementById('plActual').innerHTML=`
+    <div class="pl-row"><span class="pl-lbl">醫事人員費（${totMS}場 × $${MED_RATE.toLocaleString()}）</span><span class="pl-val">$${fmt(totMC)}</span></div>
+    <div class="pl-row"><span class="pl-lbl">通譯費（${totTS}場 × $${TR_RATE.toLocaleString()}，收支相抵）</span><span class="pl-val">$${fmt(totTC)}</span></div>
+    <div class="pl-row"><span class="pl-lbl">人員薪資（${exp.length}個月）</span><span class="pl-val">$${fmt(totSt)}</span></div>
+    <div class="pl-row"><span class="pl-lbl">零用金雜支（交通、郵電等）</span><span class="pl-val">$${fmt(totPt)}</span></div>
+    <div class="pl-row total"><span>已發生支出合計</span><span class="pl-val" style="color:var(--err)">$${fmt(totCost)}</span></div>
+    <div class="pl-row total ${curProfit>=0?'profit':'loss'}"><span>目前損益（合約金額 − 已付）</span><span>${curProfit>=0?'+':'−'}$${fmt(Math.abs(Math.round(curProfit)))}</span></div>
+    <div class="mini-bar" style="margin-top:8px"><div class="mini-fill" style="width:${Math.min(100,totCost/revFull.total*100).toFixed(1)}%;background:var(--err)"></div></div>
+    <div style="font-size:10px;color:var(--gray);margin-top:3px">已用預算 ${(totCost/revFull.total*100).toFixed(1)}%，完成 ${lat.done}/200 案（${(lat.done/TARGET*100).toFixed(0)}%）</div>`;
+
+  // 完工預估區塊
+  document.getElementById('plProjected').innerHTML=`
+    <div class="pl-row"><span class="pl-lbl">已發生支出</span><span class="pl-val">$${fmt(totCost)}</span></div>
+    <div class="pl-row"><span class="pl-lbl">剩餘醫事（估${remMedSes}場 × $${MED_RATE.toLocaleString()}）</span><span class="pl-val">$${fmt(remMedSes*MED_RATE)}</span></div>
+    <div class="pl-row"><span class="pl-lbl">剩餘通譯（估${remTrSes}場 × $${TR_RATE.toLocaleString()}）</span><span class="pl-val">$${fmt(remTrSes*TR_RATE)}</span></div>
+    <div class="pl-row"><span class="pl-lbl">剩餘薪資（估${remMonths}個月 × $${STAFF.toLocaleString()}）</span><span class="pl-val">$${fmt(remMonths*STAFF)}</span></div>
+    <div class="pl-row"><span class="pl-lbl">剩餘雜支（估）</span><span class="pl-val">$${fmt(remPt)}</span></div>
+    <div class="pl-row total"><span>預估完工總成本</span><span class="pl-val" style="color:var(--warn)">$${fmt(Math.round(projCost))}</span></div>
+    <div class="pl-row total ${projProfit>=0?'profit':'loss'}"><span>預估盈餘</span><span>${projProfit>=0?'+':'−'}$${fmt(Math.abs(Math.round(projProfit)))}</span></div>`;
+
+  // 醫事費差異 → 改為利潤來源分析
+  document.getElementById('plMedNote').innerHTML=`
+    <div style="font-weight:700;color:var(--dark);margin-bottom:6px">📊 利潤來源分析（200案完工）</div>
+    <div style="margin-bottom:4px">① 服務費毛利（項1照護$2,500 + 項2諮詢$1,000~$1,200 − 醫事人員$2,100）<br>
+    &nbsp;&nbsp;前160案：($2,500+$1,000)−$2,100 = <strong style="color:var(--ok)">$1,400/案</strong> × 160 = $224,000<br>
+    &nbsp;&nbsp;後40案：($2,500+$1,200)−$2,100 = <strong style="color:var(--ok)">$1,600/案</strong> × 40 = $64,000<br>
+    &nbsp;&nbsp;服務費毛利合計：<strong style="color:var(--ok)">$288,000</strong></div>
+    <div style="margin-bottom:4px">② 通譯費（項3）：政府補$1,500 = 實付$1,500，收支相抵 <strong>$0</strong></div>
+    <div style="margin-bottom:4px">③ 交通郵電（項4+5）：預算$120,000，節省部分為利潤</div>
+    <div style="margin-bottom:4px">④ 管理費（項7）：$112,800 預算<br>
+    &nbsp;&nbsp;薪資完工預估 $${fmt(Math.round(projSalary))}，${mgmtBalance>=0?'管理費<strong style="color:var(--ok)">尚餘 $'+fmt(Math.round(mgmtBalance))+'</strong>':'<strong style="color:var(--err)">超支 $'+fmt(Math.abs(Math.round(mgmtBalance)))+'</strong>，由服務費毛利補貼'}</div>
+    <div style="font-size:10px;color:var(--gray);margin-top:6px">※ 需求說明書第肆條：「各經費項目不得相互勻支」，請注意各項獨立管控</div>`;
+
+  // 甜甜圈圖（成本組成 + 預估盈餘）
+  const donutData=[
+    {lbl:'醫事費用',v:Math.round(projCost*totMC/Math.max(1,totCost)),c:'#E8732A'},
+    {lbl:'通譯費用',v:Math.round(projCost*totTC/Math.max(1,totCost)),c:'#4A90D9'},
+    {lbl:'人員薪資',v:Math.round(projSalary),c:'#E74C3C'},
+    {lbl:'零用金雜支',v:Math.round(projCost*totPt/Math.max(1,totCost)),c:'#F39C12'},
+    {lbl:'預估盈餘',v:Math.max(0,Math.round(projProfit)),c:'#27AE60'},
+  ];
+  const donutTotal=donutData.reduce((s,d)=>s+d.v,0);
+  if(chDonut)chDonut.destroy();
+  const dCtx=document.getElementById('chDonut');
+  if(dCtx){
+    chDonut=new Chart(dCtx.getContext('2d'),{
+      type:'doughnut',
+      data:{
+        labels:donutData.map(d=>d.lbl),
+        datasets:[{data:donutData.map(d=>d.v),backgroundColor:donutData.map(d=>d.c),borderWidth:2,borderColor:'#fff',hoverOffset:4}]
+      },
+      options:{responsive:true,maintainAspectRatio:false,cutout:'68%',
+        plugins:{legend:{display:false},datalabels:{display:false},tooltip:{callbacks:{label:c=>`${c.label}：$${c.parsed.toLocaleString('zh-TW')}（${Math.round(c.parsed/donutTotal*100)}%）`}}}}
+    });
+    const profitColor=projProfit>=0?'var(--ok)':'var(--err)';
+    document.getElementById('donutVal').textContent=(projProfit>=0?'+ ':'− ')+'$'+fmt(Math.abs(Math.round(projProfit)));
+    document.getElementById('donutVal').style.color=profitColor;
+    document.getElementById('donutLegend').innerHTML=donutData.map(d=>`
+      <div style="display:flex;align-items:center;gap:6px">
+        <span style="width:10px;height:10px;border-radius:2px;background:${d.c};flex-shrink:0"></span>
+        <span style="color:var(--gray)">${d.lbl}</span>
+        <span style="margin-left:auto;font-weight:700;color:var(--dark)">$${fmt(d.v)}</span>
+        <span style="color:var(--gray);min-width:36px;text-align:right">${Math.round(d.v/donutTotal*100)}%</span>
+      </div>`).join('');
+  }
+
+  // 月度明細表
+  let cumCost=0;
+  let rows='';
+  exp.forEach(e=>{
+    const tot=e.mc+e.tc+e.st+e.pt;
+    const svcRev=(MED_RATE>0)?(CARE_BUD+CONSULT1-MED_RATE)*e.ms:0; // 每場服務費毛利
+    cumCost+=tot;
+    rows+=`<tr>
+      <td><strong>${fmo(e.m)}</strong></td>
+      <td>${e.ms}場 / $${fmt(e.mc)}</td>
+      <td>${e.ts}場 / $${fmt(e.tc)}</td>
+      <td>$${fmt(e.st)}</td><td>$${fmt(e.pt)}</td>
+      <td><strong>$${fmt(tot)}</strong></td>
+      <td style="color:var(--ok)">+$${fmt(svcRev)}</td>
+      <td>$${fmt(Math.round(cumCost))}</td></tr>`;
+  });
+  document.getElementById('plTbody').innerHTML=rows;
+  const totSvcRev=(MED_RATE>0)?(CARE_BUD+CONSULT1-MED_RATE)*totMS:0;
+  document.getElementById('plFoot').innerHTML=`
+    <tr style="background:#F9FAFB;font-weight:700">
+      <td>合計</td><td>${totMS}場 / $${fmt(totMC)}</td><td>${totTS}場 / $${fmt(totTC)}</td>
+      <td>$${fmt(totSt)}</td><td>$${fmt(totPt)}</td>
+      <td style="color:var(--err)">$${fmt(totCost)}</td>
+      <td style="color:var(--ok)">+$${fmt(totSvcRev)}</td>
+      <td style="color:var(--pri)">$${fmt(totCost)}</td></tr>`;
+}
+
+// ===== CHARTS =====
+let chP,chC,chB,chPL,chDonut;
+
+function drawDashCharts(){
+  const data=ld();
+  const exp=[...data.expenses].sort((a,b)=>a.m.localeCompare(b.m));
+  const wk=[...data.weekly].sort((a,b)=>a.date.localeCompare(b.date));
+  const lat=wk[wk.length-1]||{done:108};
+
+  // Progress chart
+  const months=['2026-01','2026-02','2026-03','2026-04','2026-05','2026-06','2026-07','2026-08','2026-09','2026-10'];
+  const labels=['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月'];
+  const planned=[0,0,0,29,57,86,114,143,171,200];
+  const actual=months.map(m=>{
+    const me=m+'-31';const bf=wk.filter(u=>u.date<=me);
+    return bf.length?bf[bf.length-1].done:null;
+  });
+
+  // Trend projection (linear from last 2 data points)
+  const rate=calcRisk(data).useRate;
+  const latIdx=months.findIndex(m=>m>=lat.date.substring(0,7));
+  const trend=months.map((m,i)=>{
+    if(actual[i]!==null)return null;
+    if(i<latIdx)return null;
+    const daysSinceLat=Math.ceil((new Date(m+'-15')-new Date(lat.date))/86400000);
+    return Math.min(TARGET,Math.round(lat.done+rate*daysSinceLat));
+  });
+
+  if(chP)chP.destroy();
+  chP=new Chart(document.getElementById('chProg').getContext('2d'),{
+    type:'line',data:{labels,datasets:[
+      {label:'計畫值',data:planned,borderColor:'#CBD5E1',borderDash:[5,5],pointRadius:2,fill:false,tension:.3,borderWidth:1.5,pointBackgroundColor:'#CBD5E1',
+        datalabels:{align:'top',anchor:'center',color:'#9CA3AF',font:{size:10},
+          formatter:v=>v===null||v===undefined?'':v,
+          display:ctx=>ctx.dataIndex===0?false:true}},
+      {label:'實際累計',data:actual,borderColor:'#E8732A',backgroundColor:'rgba(232,115,42,.1)',fill:true,tension:.3,borderWidth:2.5,pointRadius:5,pointBackgroundColor:'#E8732A',spanGaps:true,
+        datalabels:{align:'bottom',anchor:'center',color:'#E8732A',font:{size:11,weight:'bold'},
+          formatter:v=>v===null||v===undefined?'':v}},
+      {label:'趨勢預測',data:trend,borderColor:'#F39C12',borderDash:[3,4],pointRadius:3,fill:false,tension:.3,borderWidth:1.5,pointBackgroundColor:'#F39C12',spanGaps:true,
+        datalabels:{display:false}}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,layout:{padding:{top:20,bottom:20}},
+      plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10}},
+        annotation:{annotations:{}},
+        datalabels:{}},
+      scales:{y:{min:0,max:220,ticks:{font:{size:10}}},x:{ticks:{font:{size:10}}}}}
+  });
+
+  // Cost bar
+  const active=exp.filter(e=>e.mc+e.tc+e.pt>0).slice(-5);
+  if(chC)chC.destroy();
+  chC=new Chart(document.getElementById('chCost').getContext('2d'),{
+    type:'bar',data:{labels:active.map(e=>fmo(e.m)),datasets:[
+      {label:'醫事費用',data:active.map(e=>e.mc),backgroundColor:'#E8732A'},
+      {label:'通譯費用',data:active.map(e=>e.tc),backgroundColor:'#F5A762'},
+      {label:'零用金',data:active.map(e=>e.pt),backgroundColor:'#FBD5B2'}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10}},
+        tooltip:{callbacks:{label:c=>`${c.dataset.label}：$${c.parsed.y.toLocaleString()}`}},
+        datalabels:{display:false}},
+      scales:{x:{stacked:true,ticks:{font:{size:10}}},y:{stacked:true,ticks:{font:{size:10},callback:v=>'$'+(v/1000).toFixed(0)+'K'}}}}
+  });
+
+  // Burn
+  let cum=0;
+  const cumVals=exp.map(e=>{cum+=e.mc+e.tc+e.st+e.pt;return cum});
+  const planBurn=exp.map((_,i)=>Math.round(BUDGET/10*(i+1)));
+  if(chB)chB.destroy();
+  chB=new Chart(document.getElementById('chBurn').getContext('2d'),{
+    type:'line',data:{labels:exp.map(e=>fmo(e.m)),datasets:[
+      {label:'實際累計',data:cumVals,borderColor:'#E8732A',fill:true,backgroundColor:'rgba(232,115,42,.08)',tension:.3,borderWidth:2,pointRadius:3},
+      {label:'預算計畫線',data:planBurn,borderColor:'#CBD5E1',borderDash:[4,4],fill:false,tension:.3,borderWidth:1.5,pointRadius:2}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10}},datalabels:{display:false}},
+      scales:{y:{ticks:{font:{size:10},callback:v=>'$'+(v/10000).toFixed(0)+'萬'}},x:{ticks:{font:{size:10}}}}}
+  });
+}
+
+function drawPLChart(){
+  const data=ld();
+  const exp=[...data.expenses].sort((a,b)=>a.m.localeCompare(b.m));
+  let cumCost=0;
+  const labels=exp.map(e=>fmo(e.m));
+  const monthCosts=exp.map(e=>e.mc+e.tc+e.st+e.pt);
+  const medSurplus=exp.map(e=>(MED_BUD-MED_RATE)*e.ms);
+  const cumCosts=exp.map(e=>{cumCost+=e.mc+e.tc+e.st+e.pt;return cumCost});
+
+  if(chPL)chPL.destroy();
+  chPL=new Chart(document.getElementById('chPL').getContext('2d'),{
+    type:'bar',
+    data:{labels,datasets:[
+      {label:'月支出',data:monthCosts,backgroundColor:'rgba(231,76,60,.6)',yAxisID:'y',
+        datalabels:{anchor:'end',align:'top',color:'rgba(231,76,60,.9)',font:{size:10,weight:'bold'},
+          formatter:v=>v>0?'$'+(v/1000).toFixed(0)+'K':'',offset:4}},
+      {label:'醫事盈餘',data:medSurplus,backgroundColor:'rgba(39,174,96,.7)',yAxisID:'y',
+        datalabels:{anchor:'end',align:'bottom',color:'rgba(39,174,96,.9)',font:{size:10,weight:'bold'},
+          formatter:v=>v>0?'+$'+(v/1000).toFixed(0)+'K':'',offset:4}},
+      {type:'line',label:'累計支出',data:cumCosts,borderColor:'#E8732A',fill:false,tension:.3,borderWidth:2,pointRadius:3,yAxisID:'y2',
+        datalabels:{align:'top',anchor:'center',color:'#E8732A',font:{size:9},
+          formatter:v=>'$'+(v/10000).toFixed(1)+'萬',offset:6}}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,layout:{padding:{top:28,bottom:8}},
+      plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10}},
+        tooltip:{callbacks:{label:c=>`${c.dataset.label}：$${c.parsed.y.toLocaleString()}`}},
+        datalabels:{}},
+      scales:{
+        y:{position:'left',ticks:{font:{size:10},callback:v=>'$'+(v/1000).toFixed(0)+'K'},title:{display:true,text:'月金額',font:{size:10}}},
+        y2:{position:'right',grid:{drawOnChartArea:false},ticks:{font:{size:10},callback:v=>'$'+(v/10000).toFixed(0)+'萬'},title:{display:true,text:'累計',font:{size:10}}},
+        x:{ticks:{font:{size:10}}}}}
+  });
+}
+
+// ===== ADMIN TABLES =====
+function renderAdminTbls(data){
+  const iStyle='border:none;background:transparent;font-family:inherit;width:100%;padding:2px 4px;border-radius:4px;transition:.15s';
+  const focusStyle='onfocus="this.style.background=\'var(--pri-l)\'" onblur="this.style.background=\'transparent\'"';
+  const wk=[...data.weekly].map((u,_idx)=>({...u,_idx})).sort((a,b)=>b.date.localeCompare(a.date));
+  document.getElementById('admWk').innerHTML=wk.map(u=>`
+    <tr>
+      <td><input type="date" value="${u.date}" style="${iStyle};font-size:12px;width:130px;cursor:pointer" ${focusStyle} onchange="updateWk(${u._idx},'date',this.value)"></td>
+      <td><input type="number" value="${u.done}" min="0" max="200" style="${iStyle};font-size:13px;font-weight:700;width:56px;text-align:center" ${focusStyle} onchange="updateWk(${u._idx},'done',+this.value)"></td>
+      <td><input type="number" value="${u.sch||0}" min="0" style="${iStyle};width:52px;text-align:center" ${focusStyle} onchange="updateWk(${u._idx},'sch',+this.value)"></td>
+      <td><input type="number" value="${u.pend||0}" min="0" style="${iStyle};width:52px;text-align:center" ${focusStyle} onchange="updateWk(${u._idx},'pend',+this.value)"></td>
+      <td><input type="text" value="${(u.note||'').replace(/"/g,'&quot;')}" style="${iStyle};font-size:11px;min-width:140px" ${focusStyle} onchange="updateWk(${u._idx},'note',this.value)"></td>
+      <td><button class="btn btn-d" onclick="delWk2(${u._idx})">刪除</button></td>
+    </tr>`).join('');
+
+  const iS='border:none;background:transparent;font-family:inherit;width:100%;padding:2px 4px;border-radius:4px;transition:.15s';
+  const foc='onfocus="this.style.background=\'var(--pri-l)\'" onblur="this.style.background=\'transparent\'"';
+
+  const exs=[...data.expenses].map((e,_idx)=>({...e,_idx})).sort((a,b)=>b.m.localeCompare(a.m));
+  document.getElementById('admExp').innerHTML=exs.map(e=>{
+    const t=e.mc+e.tc+e.st+e.pt;
+    return`<tr>
+      <td><input type="month" value="${e.m}" style="${iS};width:110px;cursor:pointer;font-size:12px" ${foc} onchange="updateExp(${e._idx},'m',this.value)"></td>
+      <td><input type="number" value="${e.ms}" min="0" style="${iS};width:48px;text-align:center" ${foc} onchange="updateExp(${e._idx},'ms',+this.value)"></td>
+      <td><input type="number" value="${e.mc}" min="0" style="${iS};width:72px;text-align:right" ${foc} onchange="updateExp(${e._idx},'mc',+this.value)"></td>
+      <td><input type="number" value="${e.ts}" min="0" style="${iS};width:48px;text-align:center" ${foc} onchange="updateExp(${e._idx},'ts',+this.value)"></td>
+      <td><input type="number" value="${e.tc}" min="0" style="${iS};width:72px;text-align:right" ${foc} onchange="updateExp(${e._idx},'tc',+this.value)"></td>
+      <td><input type="number" value="${e.st}" min="0" style="${iS};width:72px;text-align:right" ${foc} onchange="updateExp(${e._idx},'st',+this.value)"></td>
+      <td><input type="number" value="${e.pt}" min="0" style="${iS};width:72px;text-align:right" ${foc} onchange="updateExp(${e._idx},'pt',+this.value)"></td>
+      <td><strong>$${fmt(t)}</strong></td>
+      <td><input type="text" value="${(e.note||'').replace(/"/g,'&quot;')}" style="${iS};min-width:80px;font-size:11px" ${foc} onchange="updateExp(${e._idx},'note',this.value)"></td>
+      <td><button class="btn btn-d" onclick="delExp2(${e._idx})">刪除</button></td>
+    </tr>`;
+  }).join('');
+
+  const or=[...(data.outreach||[])].map((o,_idx)=>({...o,_idx})).sort((a,b)=>b.date.localeCompare(a.date));
+  document.getElementById('admOr').innerHTML=or.map(o=>`
+    <tr>
+      <td><input type="date" value="${o.date}" style="${iS};width:120px;cursor:pointer;font-size:12px" ${foc} onchange="updateOr(${o._idx},'date',this.value)"></td>
+      <td><input type="text" value="${(o.org||'').replace(/"/g,'&quot;')}" style="${iS};font-size:11px;min-width:100px" ${foc} onchange="updateOr(${o._idx},'org',this.value)"></td>
+      <td><input type="text" value="${(o.meth||'').replace(/"/g,'&quot;')}" style="${iS};width:60px" ${foc} onchange="updateOr(${o._idx},'meth',this.value)"></td>
+      <td><input type="number" value="${o.hc}" min="0" style="${iS};width:52px;text-align:center" ${foc} onchange="updateOr(${o._idx},'hc',+this.value)"></td>
+      <td><input type="text" value="${(o.src||'').replace(/"/g,'&quot;')}" style="${iS};font-size:11px;min-width:80px" ${foc} onchange="updateOr(${o._idx},'src',this.value)"></td>
+      <td><button class="btn btn-d" onclick="delOr2(${o._idx})">刪除</button></td>
+    </tr>`).join('');
+
+  const evs=[...(data.events||[])].map((e,_idx)=>({...e,_idx})).sort((a,b)=>b.date.localeCompare(a.date));
+  document.getElementById('admEv').innerHTML=evs.map(e=>`
+    <tr>
+      <td><input type="date" value="${e.date}" style="${iS};width:120px;cursor:pointer;font-size:12px" ${foc} onchange="updateEv(${e._idx},'date',this.value)"></td>
+      <td><input type="text" value="${(e.title||'').replace(/"/g,'&quot;')}" style="${iS};font-size:12px;min-width:140px" ${foc} onchange="updateEv(${e._idx},'title',this.value)"></td>
+      <td><input type="text" value="${(e.note||'').replace(/"/g,'&quot;')}" style="${iS};font-size:11px;min-width:120px" ${foc} onchange="updateEv(${e._idx},'note',this.value)"></td>
+      <td><button class="btn btn-d" onclick="delEv(${e._idx})">刪除</button></td>
+    </tr>`).join('');
+}
+
+// ===== FORM ACTIONS =====
+function addWeekly(){
+  const date=document.getElementById('wDate').value;
+  const done=+document.getElementById('wDone').value||0;
+  const sch=+document.getElementById('wSch').value||0;
+  const pend=+document.getElementById('wPend').value||0;
+  const note=document.getElementById('wNote').value;
+  if(!date||!done)return alert('請填入日期與已進家案數');
+  const d=ld();d.weekly.push({date,done,sch,pend,note});sv2(d);
+  ['wDate','wDone','wSch','wPend','wNote'].forEach(id=>document.getElementById(id).value='');
+  showOk('wOk');renderDash();setTimeout(drawDashCharts,150);
+}
+
+function saveExp(){
+  const m=document.getElementById('mMon').value;
+  if(!m)return alert('請選擇月份');
+  const ms=+document.getElementById('mMS').value||0;
+  const mc=+document.getElementById('mMC').value||(ms*MED_RATE);
+  const ts=+document.getElementById('mTS').value||0;
+  const tc=+document.getElementById('mTC').value||(ts*TR_RATE);
+  const st=+document.getElementById('mSt').value||STAFF;
+  const pt=+document.getElementById('mPt').value||0;
+  const note=document.getElementById('mNote').value;
+  const d=ld();const idx=d.expenses.findIndex(e=>e.m===m);
+  const entry={m,ms,mc,ts,tc,st,pt,note};
+  if(idx>=0){if(!confirm(fmo(m)+' 資料已存在，確定覆蓋？'))return;d.expenses[idx]=entry;}
+  else d.expenses.push(entry);
+  sv2(d);showOk('mOk');renderDash();setTimeout(drawDashCharts,150);
+}
+
+function addOutreach(){
+  const date=document.getElementById('oDate').value;
+  const org=document.getElementById('oOrg').value;
+  const meth=document.getElementById('oMeth').value;
+  const hc=+document.getElementById('oHc').value||0;
+  const src=document.getElementById('oSrc').value;
+  if(!date||!org)return alert('請填入日期和單位');
+  const d=ld();if(!d.outreach)d.outreach=[];
+  d.outreach.push({date,org,meth,hc,src});sv2(d);
+  ['oDate','oOrg','oHc','oSrc'].forEach(id=>document.getElementById(id).value='');
+  showOk('oOk');renderDash();
+}
+
+function addEvent(){
+  const date=document.getElementById('eDate').value;
+  const title=document.getElementById('eTitle').value.trim();
+  const note=document.getElementById('eNote').value.trim();
+  if(!date||!title)return alert('請填入日期和標題');
+  const d=ld();if(!d.events)d.events=[];
+  d.events.push({date,title,note});sv2(d);
+  ['eDate','eTitle','eNote'].forEach(id=>document.getElementById(id).value='');
+  showOk('eOk');renderDash();
+}
+
+function updateWk(idx,field,val){
+  const d=ld();if(!d.weekly[idx])return;
+  d.weekly[idx][field]=val;sv2(d);renderDash();renderPL();setTimeout(drawDashCharts,150);
+}
+function delWk2(idx){
+  if(!confirm('確定刪除？'))return;
+  const d=ld();d.weekly.splice(idx,1);sv2(d);renderDash();renderPL();setTimeout(drawDashCharts,150);
+}
+function updateExp(idx,field,val){
+  const d=ld();if(!d.expenses[idx])return;
+  d.expenses[idx][field]=val;sv2(d);renderDash();renderPL();setTimeout(drawDashCharts,150);
+}
+function delExp2(idx){
+  if(!confirm('確定刪除？'))return;
+  const d=ld();d.expenses.splice(idx,1);sv2(d);renderDash();renderPL();setTimeout(drawDashCharts,150);
+}
+function updateOr(idx,field,val){
+  const d=ld();if(!(d.outreach||[])[idx])return;
+  d.outreach[idx][field]=val;sv2(d);renderDash();
+}
+function delOr2(idx){
+  if(!confirm('確定刪除？'))return;
+  const d=ld();d.outreach.splice(idx,1);sv2(d);renderDash();
+}
+function updateEv(idx,field,val){
+  const d=ld();if(!(d.events||[])[idx])return;
+  d.events[idx][field]=val;sv2(d);renderDash();
+}
+function delEv(idx){
+  if(!confirm('確定刪除？'))return;
+  const d=ld();d.events.splice(idx,1);sv2(d);renderDash();
+}
+function delExp(m){
+  if(!confirm('確定刪除？'))return;
+  const d=ld();d.expenses=d.expenses.filter(e=>e.m!==m);sv2(d);renderDash();renderPL();setTimeout(drawDashCharts,150);
+}
+function delOr(i){
+  if(!confirm('確定刪除？'))return;
+  const d=ld();const s=[...(d.outreach||[])].sort((a,b)=>b.date.localeCompare(a.date));
+  const t=s[i];d.outreach=(d.outreach||[]).filter(o=>!(o.date===t.date&&o.org===t.org));
+  sv2(d);renderDash();
+}
+function calcCost(){
+  const ms=+document.getElementById('mMS').value||0;
+  const ts=+document.getElementById('mTS').value||0;
+  const mc=ms*MED_RATE,tc=ts*TR_RATE;
+  document.getElementById('mMC').value=mc||'';
+  document.getElementById('mTC').value=tc||'';
+  const st=+document.getElementById('mSt').value||STAFF;
+  const pt=+document.getElementById('mPt').value||0;
+  document.getElementById('calcTip').textContent=
+    `💡 醫事 ${ms}場×$${MED_RATE}=$${fmt(mc)} ／ 通譯 ${ts}場×$${TR_RATE}=$${fmt(tc)} ／ 本月合計 $${fmt(mc+tc+st+pt)}`;
+}
+function showOk(id){const el=document.getElementById(id);el.style.display='block';setTimeout(()=>el.style.display='none',3000)}
+
+// ===== EVENTS =====
+function renderEvents(data){
+  const evs=[...(data.events||[])].sort((a,b)=>b.date.localeCompare(a.date));
+  const sub=document.getElementById('evtSub');
+  const list=document.getElementById('evtList');
+  if(!evs.length){if(sub)sub.textContent='';if(list)list.innerHTML='<div style="color:var(--gray);font-size:12px;padding:8px 0">尚無記事</div>';return;}
+  if(sub)sub.textContent=evs.length+'筆';
+  const half=Math.ceil(evs.length/2);
+  const leftEvs=evs.slice(0,half);
+  const rightEvs=evs.slice(half);
+  const mkRow=(e,border)=>`
+    <div style="display:flex;align-items:flex-start;gap:8px;padding:6px 8px">
+      <div style="flex-shrink:0;width:76px;font-size:11px;color:var(--gray);padding-top:1px">${fwd(e.date)}</div>
+      <div style="flex:1">
+        <div style="font-size:12px;font-weight:600;color:var(--txt);line-height:1.3">${e.title||''}</div>
+        ${e.note?`<div style="font-size:11px;color:var(--gray);margin-top:1px">${e.note}</div>`:''}
+      </div>
+    </div>`;
+  if(list)list.innerHTML=
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:0;align-items:start">'
+    +'<div>'+leftEvs.map(e=>mkRow(e,true)).join('')+'</div>'
+    +'<div>'+rightEvs.map(e=>mkRow(e,false)).join('')+'</div>'
+    +'</div>';
+}
+
+// ===== SETTINGS STRIP =====
+function toggleSettingsStrip(){
+  const form=document.getElementById('settingsStripForm');
+  const isHidden=form.style.display==='none'||form.style.display==='';
+  if(isHidden){
+    const d=ld();const cfg=d.settings||{};
+    const el=document.getElementById('fGoal');if(el)el.value=cfg.goalTarget||200;
+    const ed=document.getElementById('fDeadline');if(ed)ed.value=cfg.goalDeadline||DEADLINE_INT;
+    form.style.display='block';
+  } else {
+    form.style.display='none';
+  }
+}
+function saveSettingsFront(){
+  const goal=+document.getElementById('fGoal').value||200;
+  const deadline=document.getElementById('fDeadline').value||DEADLINE_INT;
+  const d=ld();if(!d.settings)d.settings={};
+  d.settings.goalTarget=goal;d.settings.goalDeadline=deadline;
+  sv2(d);
+  document.getElementById('settingsStripForm').style.display='none';
+  renderDash();setTimeout(drawDashCharts,150);
+}
+function updateSettingsDisplay(data){
+  const cfg=(data.settings)||{};
+  const goalEl=document.getElementById('sdGoal');
+  const dlEl=document.getElementById('sdDeadline');
+  if(goalEl)goalEl.textContent=cfg.goalTarget||200;
+  if(dlEl)dlEl.textContent=(cfg.goalDeadline||DEADLINE_INT).replace(/^20\d\d-/,'').replace('-','/');
+}
+
+// ===== ANALYSIS VIEW =====
+function sta(id,btn){
+  document.querySelectorAll('#anaTnav .tbtn').forEach(b=>b.classList.remove('on'));
+  if(btn)btn.classList.add('on');
+  document.querySelectorAll('#vAna .tcont').forEach(t=>t.style.display='none');
+  const el=document.getElementById(id);if(el)el.style.display='block';
+  if(id==='a2')setTimeout(drawAnaDist,50);
+  if(id==='a3')setTimeout(drawAnaScore,50);
+  if(id==='a4'){setTimeout(drawAnaTeacher,50);setTimeout(drawAnaInterp,50);}
+  if(id==='a5'){setTimeout(drawAnaGender,50);setTimeout(drawAnaAge,50);setTimeout(drawAnaSen,50);setTimeout(drawAnaMon,50);}
+}
+
+const ANA={
+  updateDate:'2026/07/17(五)',total:108,
+  sources:{'歲悅自招':55,'長照A單位':27,'勞工局':26},
+  nationalities:{'印尼':96,'菲律賓':10,'越南':2},
+  districts:{'鳳山區':15,'前鎮區':10,'楠梓區':10,'三民區':8,'新興區':7,'苓雅區':7,'小港區':5,'岡山區':5,'鹽埕區':5,'鼓山區':5,'左營區':5,'鳥松區':3,'路竹區':3,'美濃區':3,'旗山區':2,'阿蓮區':2,'林園區':2,'梓官區':2,'大寮區':2,'茄萣區':1,'彌陀區':1,'仁武區':1,'大樹區':1,'燕巢區':1,'湖內區':1,'內門區':1},
+  teachers:{'周玉娟':40,'吳駱雅心':26,'蔡金花':22,'劉虹橋':15,'李思穎':4,'莊昕瑗':1},
+  professions:{'護理師':107,'物理治療師':1},
+  interpreters:{'鐘麗虹':39,'梁禛真':25,'許源凱':21,'張麗麗':11,'顏鈺婷':10,'鄧安芷':2},
+  genders:{'男':49,'女':59},
+  seniority:{'未達一年':71,'1-3年':21,'3-5年':9,'5年以上':7},
+  monthly:{'4':15,'5':29,'6':41,'7':23},
+  ageStats:{avg:80.0,bins:{'60歲以下':7,'60-69歲':6,'70-79歲':34,'80-89歲':41,'90歲以上':20}},
+  scores:{
+    '移動照護':{count:103,pre_avg:4.63,post_avg:8.99,avg_improvement:4.36,pairs:92},
+    '飲食照護':{count:53,pre_avg:4.89,post_avg:8.36,avg_improvement:3.47,pairs:45},
+    '排泄照護':{count:55,pre_avg:4.81,post_avg:8.04,avg_improvement:3.23,pairs:47},
+    '潔身照護':{count:77,pre_avg:4.70,post_avg:8.07,avg_improvement:3.37,pairs:67},
+    '居家健康管理':{count:91,pre_avg:4.64,post_avg:8.05,avg_improvement:3.40,pairs:87}
+  }
+};
+
+let chAnaSrc=null,chAnaNat=null,chAnaDist=null,chAnaScore=null,chAnaTeacher=null,chAnaInterp=null,chAnaGender=null,chAnaAge=null,chAnaSen=null,chAnaMon=null;
+
+function drawAnaCharts(){
+  drawAnaSrc();drawAnaSrcChart();
+  drawAnaNat();drawAnaNatChart();
+  drawAnaDistRank();drawAnaDist();
+  drawAnaScore();drawAnaScoreTable();
+  drawAnaTeacher();drawAnaInterp();drawAnaTeacherDetail();
+  drawAnaGender();drawAnaGenderChart();
+  drawAnaAge();drawAnaAgeChart();
+  drawAnaSen();drawAnaSenChart();
+  drawAnaMon();
+}
+
+function drawAnaDistRank(){
+  const el=document.getElementById('anaDistRank');if(!el)return;
+  const sorted=Object.entries(ANA.districts).sort((a,b)=>b[1]-a[1]);
+  const total=ANA.total;
+  const makeRow=(name,cnt,i)=>{
+    const pct=(cnt/total*100).toFixed(1);
+    const barW=Math.round(cnt/sorted[0][1]*100);
+    const numColor=i===0?'#F59E0B':i===1?'#9CA3AF':i===2?'#CD7F32':'var(--gray)';
+    return '<div style="display:flex;align-items:center;gap:12px;padding:9px 16px;border-bottom:1px solid var(--line)">'
+      +'<span style="font-size:17px;font-weight:900;color:'+numColor+';width:26px;text-align:center;flex-shrink:0">'+(i+1)+'</span>'
+      +'<span style="font-size:15px;font-weight:700;color:var(--txt);width:70px;flex-shrink:0">'+name+'</span>'
+      +'<div style="flex:1;height:8px;background:var(--line);border-radius:4px">'
+        +'<div style="width:'+barW+'%;height:100%;background:var(--pri);border-radius:4px"></div>'
+      +'</div>'
+      +'<span style="font-size:16px;font-weight:800;color:var(--pri);width:36px;text-align:right;flex-shrink:0">'+cnt+'<span style="font-size:11px;font-weight:400;color:var(--gray)">案</span></span>'
+      +'<span style="font-size:13px;color:var(--gray);width:42px;text-align:right;flex-shrink:0">'+pct+'%</span>'
+    +'</div>';
+  };
+  const left=sorted.slice(0,13);
+  const right=sorted.slice(13);
+  const leftHTML=left.map(([n,c],i)=>makeRow(n,c,i)).join('');
+  const rightHTML=right.map(([n,c],i)=>makeRow(n,c,i+13)).join('');
+  el.innerHTML='<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">'
+    +'<div style="border:1px solid var(--line);border-radius:8px;overflow:hidden">'+leftHTML+'</div>'
+    +'<div style="border:1px solid var(--line);border-radius:8px;overflow:hidden">'+rightHTML+'</div>'
+    +'</div>';
+}
+
+function drawAnaSrc(){
+  const el=document.getElementById('anaSrcRank');if(!el)return;
+  const sorted=Object.entries(ANA.sources).sort((a,b)=>b[1]-a[1]);
+  const total=ANA.total;
+  const colors=['#3B82F6','#10B981','#F59E0B'];
+  el.innerHTML='<div style="border:1px solid var(--line);border-radius:8px;overflow:hidden">'
+    +sorted.map(([name,cnt],i)=>{
+      const pct=(cnt/total*100).toFixed(1);
+      const barW=Math.round(cnt/sorted[0][1]*100);
+      return '<div style="display:flex;align-items:center;gap:14px;padding:16px 20px;border-bottom:1px solid var(--line)">'
+        +'<span style="width:14px;height:14px;border-radius:50%;background:'+colors[i]+';flex-shrink:0"></span>'
+        +'<span style="font-size:17px;font-weight:700;color:var(--txt);width:120px;flex-shrink:0">'+name+'</span>'
+        +'<div style="flex:1;height:10px;background:var(--line);border-radius:5px">'
+          +'<div style="width:'+barW+'%;height:100%;background:'+colors[i]+';border-radius:5px"></div>'
+        +'</div>'
+        +'<span style="font-size:18px;font-weight:900;color:'+colors[i]+';width:44px;text-align:right;flex-shrink:0">'+cnt+'<span style="font-size:11px;font-weight:400;color:var(--gray)">案</span></span>'
+        +'<span style="font-size:15px;color:var(--gray);width:48px;text-align:right;flex-shrink:0">'+pct+'%</span>'
+      +'</div>';
+    }).join('')
+  +'</div>';
+}
+
+function drawAnaSrcChart(){
+  const ctx=document.getElementById('anaChSrc');if(!ctx)return;
+  if(chAnaSrc)chAnaSrc.destroy();
+  const total=ANA.total;
+  const keys=Object.keys(ANA.sources),vals=Object.values(ANA.sources);
+  chAnaSrc=new Chart(ctx.getContext('2d'),{
+    type:'doughnut',
+    data:{labels:keys,datasets:[{data:vals,backgroundColor:['#3B82F6','#10B981','#F59E0B'],borderWidth:2,borderColor:'#fff'}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{
+        legend:{position:'bottom',labels:{font:{size:11},boxWidth:12,generateLabels:chart=>{
+          const ds=chart.data.datasets[0];
+          return chart.data.labels.map((l,i)=>({
+            text:l+' '+((ds.data[i]/total*100).toFixed(1))+'%',
+            fillStyle:ds.backgroundColor[i],strokeStyle:'#fff',lineWidth:2,index:i
+          }));
+        }}},
+        datalabels:{color:'#fff',font:{size:13,weight:'bold'},
+          formatter:(v)=>((v/total*100).toFixed(1))+'%'}
+      }}
+  });
+}
+function drawAnaNat(){
+  const el=document.getElementById('anaNatRank');if(!el)return;
+  const sorted=Object.entries(ANA.nationalities).sort((a,b)=>b[1]-a[1]);
+  const total=ANA.total;
+  const colors=['#EF4444','#8B5CF6','#06B6D4'];
+  el.innerHTML='<div style="border:1px solid var(--line);border-radius:8px;overflow:hidden">'
+    +sorted.map(([name,cnt],i)=>{
+      const pct=(cnt/total*100).toFixed(1);
+      const barW=Math.round(cnt/sorted[0][1]*100);
+      return '<div style="display:flex;align-items:center;gap:14px;padding:16px 20px;border-bottom:1px solid var(--line)">'
+        +'<span style="width:14px;height:14px;border-radius:50%;background:'+colors[i]+';flex-shrink:0"></span>'
+        +'<span style="font-size:17px;font-weight:700;color:var(--txt);width:80px;flex-shrink:0">'+name+'</span>'
+        +'<div style="flex:1;height:10px;background:var(--line);border-radius:5px">'
+          +'<div style="width:'+barW+'%;height:100%;background:'+colors[i]+';border-radius:5px"></div>'
+        +'</div>'
+        +'<span style="font-size:18px;font-weight:900;color:'+colors[i]+';width:44px;text-align:right;flex-shrink:0">'+cnt+'<span style="font-size:11px;font-weight:400;color:var(--gray)">人</span></span>'
+        +'<span style="font-size:15px;color:var(--gray);width:48px;text-align:right;flex-shrink:0">'+pct+'%</span>'
+      +'</div>';
+    }).join('')
+  +'</div>';
+}
+
+function drawAnaNatChart(){
+  const ctx=document.getElementById('anaChNat');if(!ctx)return;
+  if(chAnaNat)chAnaNat.destroy();
+  const total=ANA.total;
+  const keys=Object.keys(ANA.nationalities),vals=Object.values(ANA.nationalities);
+  chAnaNat=new Chart(ctx.getContext('2d'),{
+    type:'doughnut',
+    data:{labels:keys,datasets:[{data:vals,backgroundColor:['#EF4444','#8B5CF6','#06B6D4'],borderWidth:2,borderColor:'#fff'}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{
+        legend:{position:'bottom',labels:{font:{size:11},boxWidth:12,generateLabels:chart=>{
+          const ds=chart.data.datasets[0];
+          return chart.data.labels.map((l,i)=>({
+            text:l+' '+((ds.data[i]/total*100).toFixed(1))+'%',
+            fillStyle:ds.backgroundColor[i],strokeStyle:'#fff',lineWidth:2,index:i
+          }));
+        }}},
+        datalabels:{color:'#fff',font:{size:13,weight:'bold'},
+          formatter:(v)=>((v/total*100).toFixed(1))+'%'}
+      }}
+  });
+}
+function drawAnaDist(){
+  const ctx=document.getElementById('anaChDist');if(!ctx)return;
+  if(chAnaDist)chAnaDist.destroy();
+  const sorted=Object.entries(ANA.districts).sort((a,b)=>b[1]-a[1]);
+  const keys=sorted.map(e=>e[0]),vals=sorted.map(e=>e[1]);
+  chAnaDist=new Chart(ctx.getContext('2d'),{
+    type:'bar',
+    data:{labels:keys,datasets:[{label:'案數',data:vals,backgroundColor:'rgba(59,130,246,.7)',borderColor:'#3B82F6',borderWidth:1,borderRadius:3}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},
+        tooltip:{callbacks:{label:c=>`${c.parsed.x}案`}}},
+      scales:{x:{ticks:{font:{size:10},stepSize:1},grid:{color:'rgba(0,0,0,.05)'}},y:{ticks:{font:{size:10}}}}}
+  });
+}
+
+function drawAnaScore(){
+  const ctx=document.getElementById('anaChScore');if(!ctx)return;
+  if(chAnaScore)chAnaScore.destroy();
+  const cats=Object.keys(ANA.scores);
+  const pres=cats.map(c=>ANA.scores[c].pre_avg);
+  const posts=cats.map(c=>ANA.scores[c].post_avg);
+  const shortCats=cats.map(c=>c.replace('照護','').replace('居家',''));
+  chAnaScore=new Chart(ctx.getContext('2d'),{
+    type:'bar',
+    data:{labels:shortCats,datasets:[
+      {label:'前測平均',data:pres,backgroundColor:'rgba(251,191,36,.8)',borderColor:'#F59E0B',borderWidth:1,borderRadius:3},
+      {label:'後測平均',data:posts,backgroundColor:'rgba(16,185,129,.8)',borderColor:'#10B981',borderWidth:1,borderRadius:3}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10}},
+        tooltip:{callbacks:{label:c=>`${c.dataset.label}：${c.parsed.y.toFixed(2)}分`}}},
+      scales:{y:{min:0,max:10,ticks:{font:{size:10}},title:{display:true,text:'分數（滿分10分）',font:{size:10}}},
+        x:{ticks:{font:{size:10}}}}}
+  });
+}
+
+function drawAnaTeacher(){
+  const ctx=document.getElementById('anaChTeacher');if(!ctx)return;
+  if(chAnaTeacher)chAnaTeacher.destroy();
+  const keys=Object.keys(ANA.teachers),vals=Object.values(ANA.teachers);
+  const colors=['#3B82F6','#10B981','#F59E0B','#EF4444','#8B5CF6','#06B6D4'];
+  chAnaTeacher=new Chart(ctx.getContext('2d'),{
+    type:'doughnut',
+    data:{labels:keys,datasets:[{data:vals,backgroundColor:colors,borderWidth:2,borderColor:'#fff'}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10}},
+        tooltip:{callbacks:{label:c=>`${c.label}：${c.parsed}案（${(c.parsed/ANA.total*100).toFixed(1)}%）`}}}}
+  });
+}
+
+function drawAnaInterp(){
+  const ctx=document.getElementById('anaChInterp');if(!ctx)return;
+  if(chAnaInterp)chAnaInterp.destroy();
+  const sorted=Object.entries(ANA.interpreters).sort((a,b)=>b[1]-a[1]);
+  const keys=sorted.map(e=>e[0]),vals=sorted.map(e=>e[1]);
+  chAnaInterp=new Chart(ctx.getContext('2d'),{
+    type:'bar',
+    data:{labels:keys,datasets:[{label:'場數',data:vals,backgroundColor:'rgba(139,92,246,.7)',borderColor:'#8B5CF6',borderWidth:1,borderRadius:3}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{y:{ticks:{font:{size:10}},title:{display:true,text:'場數',font:{size:10}}},x:{ticks:{font:{size:10}}}}}
+  });
+}
+
+function drawAnaGender(){
+  const el=document.getElementById('anaGenderRank');if(!el)return;
+  const total=ANA.total;
+  const items=[['女',ANA.genders['女'],'#EC4899'],['男',ANA.genders['男'],'#3B82F6']];
+  el.innerHTML='<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">'
+    +items.map(([name,cnt,color])=>{
+      const pct=(cnt/total*100).toFixed(1);
+      const barW=Math.round(cnt/total*100);
+      return '<div style="border:1px solid var(--line);border-radius:8px;padding:20px 24px;display:flex;flex-direction:column;gap:10px">'
+        +'<div style="display:flex;align-items:center;gap:10px">'
+          +'<span style="font-size:28px">'+(name==='女'?'👩':'👨')+'</span>'
+          +'<span style="font-size:20px;font-weight:800;color:var(--txt)">'+name+'</span>'
+        +'</div>'
+        +'<div style="font-size:36px;font-weight:900;color:'+color+'">'+cnt+'<span style="font-size:16px;font-weight:400;color:var(--gray)"> 案</span></div>'
+        +'<div style="height:10px;background:var(--line);border-radius:5px">'
+          +'<div style="width:'+barW+'%;height:100%;background:'+color+';border-radius:5px"></div>'
+        +'</div>'
+        +'<div style="font-size:18px;color:var(--gray)">佔 <strong style="color:'+color+'">'+pct+'%</strong></div>'
+      +'</div>';
+    }).join('')
+  +'</div>';
+}
+
+function drawAnaGenderChart(){
+  const ctx=document.getElementById('anaChGender');if(!ctx)return;
+  if(chAnaGender)chAnaGender.destroy();
+  const total=ANA.total;
+  const keys=Object.keys(ANA.genders),vals=Object.values(ANA.genders);
+  chAnaGender=new Chart(ctx.getContext('2d'),{
+    type:'doughnut',
+    data:{labels:keys,datasets:[{data:vals,backgroundColor:['#3B82F6','#EC4899'],borderWidth:2,borderColor:'#fff'}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{
+        legend:{position:'bottom',labels:{font:{size:11},boxWidth:12,generateLabels:chart=>{
+          const ds=chart.data.datasets[0];
+          return chart.data.labels.map((l,i)=>({
+            text:l+' '+((ds.data[i]/total*100).toFixed(1))+'%',
+            fillStyle:ds.backgroundColor[i],strokeStyle:'#fff',lineWidth:2,index:i
+          }));
+        }}},
+        datalabels:{color:'#fff',font:{size:14,weight:'bold'},
+          formatter:(v)=>((v/total*100).toFixed(1))+'%'}
+      }}
+  });
+}
+function drawAnaAge(){
+  const el=document.getElementById('anaAgeRank');if(!el)return;
+  const bins=ANA.ageStats.bins;
+  const sorted=Object.entries(bins).sort((a,b)=>b[1]-a[1]);
+  const total=ANA.total;
+  const maxVal=sorted[0][1];
+  el.innerHTML='<div style="border:1px solid var(--line);border-radius:8px;overflow:hidden">'
+    +sorted.map(([name,cnt])=>{
+      const pct=(cnt/total*100).toFixed(1);
+      const barW=Math.round(cnt/maxVal*100);
+      return '<div style="display:flex;align-items:center;gap:14px;padding:13px 20px;border-bottom:1px solid var(--line)">'
+        +'<span style="font-size:16px;font-weight:700;color:var(--txt);width:90px;flex-shrink:0">'+name+'</span>'
+        +'<div style="flex:1;height:10px;background:var(--line);border-radius:5px">'
+          +'<div style="width:'+barW+'%;height:100%;background:#F97316;border-radius:5px"></div>'
+        +'</div>'
+        +'<span style="font-size:18px;font-weight:900;color:#F97316;width:44px;text-align:right;flex-shrink:0">'+cnt+'<span style="font-size:11px;font-weight:400;color:var(--gray)">人</span></span>'
+        +'<span style="font-size:15px;color:var(--gray);width:48px;text-align:right;flex-shrink:0">'+pct+'%</span>'
+      +'</div>';
+    }).join('')
+  +'</div>';
+}
+
+function drawAnaAgeChart(){
+  const ctx=document.getElementById('anaChAge');if(!ctx)return;
+  if(chAnaAge)chAnaAge.destroy();
+  const total=ANA.total;
+  const bins=ANA.ageStats.bins;
+  const keys=Object.keys(bins),vals=Object.values(bins);
+  chAnaAge=new Chart(ctx.getContext('2d'),{
+    type:'bar',
+    data:{labels:keys,datasets:[{label:'人數',data:vals,backgroundColor:'rgba(249,115,22,.7)',borderColor:'#F97316',borderWidth:1,borderRadius:3}]},
+    options:{responsive:true,maintainAspectRatio:false,layout:{padding:{top:24}},
+      plugins:{legend:{display:false},
+        datalabels:{anchor:'end',align:'top',color:'#F97316',font:{size:11,weight:'bold'},
+          formatter:(v)=>v+'人\n'+((v/total*100).toFixed(1))+'%'}},
+      scales:{y:{ticks:{font:{size:10}}},x:{ticks:{font:{size:10}}}}}
+  });
+}
+function drawAnaSen(){
+  const el=document.getElementById('anaSenRank');if(!el)return;
+  const sorted=Object.entries(ANA.seniority);
+  const total=ANA.total;
+  const maxVal=Math.max(...sorted.map(e=>e[1]));
+  const colors=['#EF4444','#F59E0B','#10B981','#3B82F6'];
+  el.innerHTML='<div style="border:1px solid var(--line);border-radius:8px;overflow:hidden">'
+    +sorted.map(([name,cnt],i)=>{
+      const pct=(cnt/total*100).toFixed(1);
+      const barW=Math.round(cnt/maxVal*100);
+      return '<div style="display:flex;align-items:center;gap:14px;padding:13px 20px;border-bottom:1px solid var(--line)">'
+        +'<span style="font-size:16px;font-weight:700;color:var(--txt);width:80px;flex-shrink:0">'+name+'</span>'
+        +'<div style="flex:1;height:10px;background:var(--line);border-radius:5px">'
+          +'<div style="width:'+barW+'%;height:100%;background:'+colors[i]+';border-radius:5px"></div>'
+        +'</div>'
+        +'<span style="font-size:18px;font-weight:900;color:'+colors[i]+';width:44px;text-align:right;flex-shrink:0">'+cnt+'<span style="font-size:11px;font-weight:400;color:var(--gray)">人</span></span>'
+        +'<span style="font-size:15px;color:var(--gray);width:48px;text-align:right;flex-shrink:0">'+pct+'%</span>'
+      +'</div>';
+    }).join('')
+  +'</div>';
+}
+
+function drawAnaSenChart(){
+  const ctx=document.getElementById('anaChSen');if(!ctx)return;
+  if(chAnaSen)chAnaSen.destroy();
+  const total=ANA.total;
+  const keys=Object.keys(ANA.seniority),vals=Object.values(ANA.seniority);
+  chAnaSen=new Chart(ctx.getContext('2d'),{
+    type:'doughnut',
+    data:{labels:keys,datasets:[{data:vals,backgroundColor:['#EF4444','#F59E0B','#10B981','#3B82F6'],borderWidth:2,borderColor:'#fff'}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{
+        legend:{position:'bottom',labels:{font:{size:10},boxWidth:10,generateLabels:chart=>{
+          const ds=chart.data.datasets[0];
+          return chart.data.labels.map((l,i)=>({
+            text:l+' '+((ds.data[i]/total*100).toFixed(1))+'%',
+            fillStyle:ds.backgroundColor[i],strokeStyle:'#fff',lineWidth:2,index:i
+          }));
+        }}},
+        datalabels:{color:'#fff',font:{size:11,weight:'bold'},
+          formatter:(v)=>((v/total*100).toFixed(1))+'%'}
+      }}
+  });
+}
+function drawAnaMon(){
+  const ctx=document.getElementById('anaChMonth');if(!ctx)return;
+  if(chAnaMon)chAnaMon.destroy();
+  const sorted=Object.entries(ANA.monthly).sort((a,b)=>+a[0]-+b[0]);
+  const keys=sorted.map(e=>e[0]+'月'),vals=sorted.map(e=>e[1]);
+  chAnaMon=new Chart(ctx.getContext('2d'),{
+    type:'bar',
+    data:{labels:keys,datasets:[{label:'服務案數',data:vals,backgroundColor:'rgba(16,185,129,.7)',borderColor:'#10B981',borderWidth:1,borderRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{y:{ticks:{font:{size:11}},title:{display:true,text:'案數',font:{size:10}}},x:{ticks:{font:{size:11}}}}}
+  });
+}
+
+function drawAnaScoreTable(){
+  const el=document.getElementById('anaScoreDetail');if(!el)return;
+  const cats=Object.entries(ANA.scores);
+  el.innerHTML='<table style="width:100%;border-collapse:collapse;font-size:12px">'
+    +'<thead><tr style="background:var(--pri-l)">'
+    +'<th style="padding:6px 8px;text-align:left">項目</th>'
+    +'<th style="padding:6px 8px;text-align:center">有前測</th>'
+    +'<th style="padding:6px 8px;text-align:center">前測均</th>'
+    +'<th style="padding:6px 8px;text-align:center">後測均</th>'
+    +'<th style="padding:6px 8px;text-align:center">平均進步</th>'
+    +'</tr></thead><tbody>'
+    +cats.map(([k,v],i)=>
+      '<tr style="background:'+(i%2?'transparent':'rgba(0,0,0,.02)')+'">'
+      +'<td style="padding:5px 8px;font-weight:600">'+k+'</td>'
+      +'<td style="padding:5px 8px;text-align:center">'+v.count+'人</td>'
+      +'<td style="padding:5px 8px;text-align:center;color:#F59E0B;font-weight:700">'+v.pre_avg.toFixed(2)+'</td>'
+      +'<td style="padding:5px 8px;text-align:center;color:#10B981;font-weight:700">'+v.post_avg.toFixed(2)+'</td>'
+      +'<td style="padding:5px 8px;text-align:center;color:#3B82F6;font-weight:700">+'+v.avg_improvement.toFixed(2)+'</td>'
+      +'</tr>'
+    ).join('')
+    +'</tbody></table>';
+}
+
+function drawAnaTeacherDetail(){
+  const el=document.getElementById('anaProfDetail');if(!el)return;
+  const items=[
+    ...Object.entries(ANA.teachers).map(([k,v])=>({name:k,role:'護理/治療師',count:v})),
+    ...Object.entries(ANA.interpreters).map(([k,v])=>({name:k,role:'通譯',count:v}))
+  ].sort((a,b)=>b.count-a.count);
+  el.innerHTML='<table style="width:100%;border-collapse:collapse;font-size:12px">'
+    +'<thead><tr style="background:var(--pri-l)">'
+    +'<th style="padding:6px 8px;text-align:left">姓名</th>'
+    +'<th style="padding:6px 8px;text-align:left">角色</th>'
+    +'<th style="padding:6px 8px;text-align:center">場數</th>'
+    +'<th style="padding:6px 8px;text-align:center">佔比</th>'
+    +'</tr></thead><tbody>'
+    +items.map((r,i)=>
+      '<tr style="background:'+(i%2?'transparent':'rgba(0,0,0,.02)')+'">'
+      +'<td style="padding:5px 8px;font-weight:600">'+r.name+'</td>'
+      +'<td style="padding:5px 8px;color:var(--gray)">'+r.role+'</td>'
+      +'<td style="padding:5px 8px;text-align:center;font-weight:700">'+r.count+'</td>'
+      +'<td style="padding:5px 8px;text-align:center;color:var(--sec)">'+(r.count/ANA.total*100).toFixed(1)+'%</td>'
+      +'</tr>'
+    ).join('')
+    +'</tbody></table>';
+}
+
+window.onload=function(){
+  renderDash();
+  const today=new Date().toISOString().split('T')[0];
+  document.getElementById('wDate').value=today;
+  document.getElementById('oDate').value=today;
+  document.getElementById('eDate').value=today;
+  calcCost();
+  setTimeout(drawDashCharts,200);
+};
+</script>
