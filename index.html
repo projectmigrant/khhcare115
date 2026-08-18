@@ -737,9 +737,10 @@ const DEFAULT_WEEKLY=[
   {date:'2026-07-29',done:126,sch:6,pend:14,note:'新增126案（7/28服務，岡山區，勞工局轉介）'},
   {date:'2026-08-03',done:130,sch:12,pend:25,note:'新增127-130案（8/1-8/2服務，美濃區/鳳山區/苓雅區/前鎮區，勞工局轉介）'},
   {date:'2026-08-05',done:133,sch:16,pend:25,note:'新增131-133案（8/4-8/5服務，路竹區/三民區/鹽埕區；周玉娟×3，鐘麗虹×3）'},
-  {date:'2026-08-14',done:154,sch:10,pend:1,note:'新增134-154案（8/6-8/13服務，共21案；長照A單位+9、勞工局+10；待派案降至1件）'}
+  {date:'2026-08-14',done:154,sch:10,pend:1,note:'新增134-154案（8/6-8/13服務，共21案；長照A單位+9、勞工局+10；待派案降至1件）'},
+  {date:'2026-08-17',done:159,sch:7,pend:1,note:'新增155-159案（8/15~8/16服務，鼓山區×2、小港區、岡山區、三民區）'}
 ];
-const WEEKLY_VER=8;
+const WEEKLY_VER=9;
 const EXPENSES_VER=10; // 7/29v10：新增護理包(nk)欄位，認列7月護理包採購成本$12,614
 
 function ld(){
@@ -1007,7 +1008,10 @@ function renderDash(){
   const totTC=exp.reduce((s,e)=>s+e.tc,0);
   const totSt=exp.reduce((s,e)=>s+e.st,0);
   const totPt=exp.reduce((s,e)=>s+e.pt,0);
-  const totAll=totMC+totTC+totSt+totPt;
+  const totBc=exp.reduce((s,e)=>s+(e.bc||0),0);
+  const totMk=exp.reduce((s,e)=>s+(e.mk||0),0);
+  const totNk=exp.reduce((s,e)=>s+(e.nk||0),0);
+  const totAll=totMC+totTC+totSt+totPt+totBc+totMk+totNk;
   const pct=Math.round(lat.done/Math.max(1,goalTarget)*100);
 
   document.getElementById('krow').innerHTML=`
@@ -1109,10 +1113,11 @@ function renderPL(){
 
   // 完工預估成本（剩餘92案）
   const remCases=Math.max(0,TARGET-lat.done);
-  const avgMedPerCase=totMS/Math.max(1,lat.done);
-  const avgTrPerCase=totTS/Math.max(1,lat.done);
-  const remMedSes=Math.round(avgMedPerCase*remCases);
-  const remTrSes=Math.round(avgTrPerCase*remCases);
+  // 剩餘醫事/通譯：以已入帳場次（expenses）為基準，而非週次快照已服務案數
+  // 當月薪資未結算時，lat.done > totMS，用 lat.done 會低估剩餘場次
+  // 正確邏輯：剩餘場次 = TARGET - 已入帳場次（每案1場，收支相抵）
+  const remMedSes=Math.max(0,TARGET-totMS);
+  const remTrSes=Math.max(0,TARGET-totTS);
   const _endDt=new Date(CONTRACT_END+'T00:00:00');
   // 剩餘薪資：以最後一筆已付薪資月份為基準（而非週次快照日期），避免新月份尚未入帳時少算一個月
   const lastStM=exp.filter(e=>e.st>0).reduce((a,b)=>a.m>b.m?a:b,{m:'2026-03'}).m;
@@ -1607,23 +1612,23 @@ function sta(id,btn){
 }
 
 const ANA={
-  updateDate:'2026/08/14(五)',total:154,
-  sources:{'歲悅自招':63,'長照A單位':43,'勞工局':48},
-  nationalities:{'印尼':142,'菲律賓':10,'越南':2},
-  districts:{'鳳山區':20,'前鎮區':14,'三民區':13,'楠梓區':13,'苓雅區':10,'小港區':8,'岡山區':8,'新興區':7,'鹽埕區':7,'鼓山區':6,'大寮區':6,'路竹區':5,'左營區':5,'美濃區':5,'鳥松區':4,'阿蓮區':4,'旗山區':3,'梓官區':3,'茄萣區':2,'林園區':2,'大樹區':2,'前金區':2,'彌陀區':1,'仁武區':1,'燕巢區':1,'湖內區':1,'內門區':1},
-  teachers:{'周玉娟':56,'吳駱雅心':40,'蔡金花':28,'劉虹橋':24,'李思穎':4,'莊昕瑗':2},
-  professions:{'護理師':152,'物理治療師':2},
-  interpreters:{'鐘麗虹':64,'許源凱':33,'梁禛真':27,'張麗麗':18,'顏鈺婷':10,'鄧安芷':2},
-  genders:{'男':69,'女':85},
-  seniority:{'未達一年':110,'1-3年':25,'3-5年':10,'5年以上':9},
-  monthly:{'4':15,'5':29,'6':41,'7':41,'8':28},
-  ageStats:{avg:80.6,bins:{'60歲以下':8,'60-69歲':6,'70-79歲':50,'80-89歲':62,'90歲以上':28}},
+  updateDate:'2026/08/17(一)',total:159,
+  sources:{'歲悅自招':64,'長照A單位':45,'勞工局':50},
+  nationalities:{'印尼':147,'菲律賓':10,'越南':2},
+  districts:{'鳳山區':20,'前鎮區':14,'三民區':14,'楠梓區':13,'苓雅區':10,'小港區':9,'岡山區':9,'鼓山區':8,'新興區':7,'鹽埕區':7,'大寮區':6,'路竹區':5,'左營區':5,'美濃區':5,'鳥松區':4,'阿蓮區':4,'旗山區':3,'梓官區':3,'茄萣區':2,'林園區':2,'大樹區':2,'前金區':2,'彌陀區':1,'仁武區':1,'燕巢區':1,'湖內區':1,'內門區':1},
+  teachers:{'周玉娟':58,'吳駱雅心':41,'蔡金花':28,'劉虹橋':26,'李思穎':4,'莊昕瑗':2},
+  professions:{'護理師':157,'物理治療師':2},
+  interpreters:{'鐘麗虹':68,'許源凱':34,'梁禛真':27,'張麗麗':18,'顏鈺婷':10,'鄧安芷':2},
+  genders:{'男':72,'女':87},
+  seniority:{'未達一年':114,'1-3年':26,'3-5年':10,'5年以上':9},
+  monthly:{'4':15,'5':29,'6':41,'7':41,'8':33},
+  ageStats:{avg:80.5,bins:{'60歲以下':9,'60-69歲':6,'70-79歲':51,'80-89歲':64,'90歲以上':29}},
   scores:{
-    '移動照護':{count:137,pre_avg:4.42,post_avg:8.29,avg_improvement:3.87,pairs:137},
-    '飲食照護':{count:77,pre_avg:4.49,post_avg:8.43,avg_improvement:3.94,pairs:77},
-    '排泄照護':{count:76,pre_avg:4.87,post_avg:8.53,avg_improvement:3.66,pairs:76},
-    '潔身照護':{count:100,pre_avg:4.65,post_avg:8.25,avg_improvement:3.60,pairs:100},
-    '居家健康管理':{count:130,pre_avg:4.46,post_avg:8.45,avg_improvement:3.99,pairs:130}
+    '移動照護':{count:143,pre_avg:4.41,post_avg:8.31,avg_improvement:3.90,pairs:143},
+    '飲食照護':{count:82,pre_avg:4.54,post_avg:8.51,avg_improvement:3.98,pairs:82},
+    '排泄照護':{count:81,pre_avg:4.85,post_avg:8.55,avg_improvement:3.70,pairs:80},
+    '潔身照護':{count:104,pre_avg:4.65,post_avg:8.29,avg_improvement:3.63,pairs:104},
+    '居家健康管理':{count:136,pre_avg:4.51,post_avg:8.49,avg_improvement:3.97,pairs:136}
   }
 };
 
