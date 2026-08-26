@@ -94,7 +94,7 @@ tr:hover td{background:#FAFAFA}
 .big-num{font-size:32px;font-weight:800;margin:8px 0 4px}
 .big-sub{font-size:11px;color:var(--gray)}
 /* Admin */
-#vAdmin{display:none}#vPL{display:none}#vAna{display:none}
+#vAdmin{display:none}#vPL{display:none}#vAna{display:none}#vSat{display:none}
 .adm-hdr{background:var(--card);border-radius:10px;padding:14px 18px;margin-bottom:14px;box-shadow:var(--shadow);display:flex;align-items:center;justify-content:space-between}
 .tnav{display:flex;gap:0;background:#F3F4F6;border-radius:8px;padding:3px;margin-bottom:14px}
 .tbtn{padding:7px 18px;border:none;background:transparent;border-radius:6px;font-size:12px;font-weight:600;color:var(--gray);cursor:pointer;font-family:inherit;transition:.2s}
@@ -181,6 +181,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--pri)}
       <button class="vbtn on" onclick="sv('dash')">📊 前台</button>
       <button class="vbtn" onclick="sv('pl')">💰 損益</button>
       <button class="vbtn" onclick="sv('ana')">📊 個案分析</button>
+      <button class="vbtn" onclick="sv('sat')">😊 移工滿意度</button>
       <button class="vbtn" onclick="sv('admin')">⚙️ 後台</button>
     </div>
   </div>
@@ -525,6 +526,59 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--pri)}
 </div>
 </div><!-- /vAna -->
 
+<!-- ===== SATISFACTION VIEW ===== -->
+<div id="vSat">
+<div class="main">
+  <div class="cc" style="margin-bottom:12px;padding:14px 18px">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <div style="font-size:13px;font-weight:700;color:var(--pri)">😊 移工滿意度分析</div>
+        <div style="font-size:11px;color:var(--gray);margin-top:2px">資料來源：115年高雄指導總表 › 移工滿意度（1-5分量表）</div>
+      </div>
+      <div style="font-size:11px;color:var(--gray)" id="satUpdateLbl"></div>
+    </div>
+  </div>
+
+  <!-- KPI cards -->
+  <div class="krow" style="grid-template-columns:repeat(4,1fr);margin-bottom:12px">
+    <div class="kc ok"><div class="kl">已回收問卷</div><div class="kv" id="satRespN">—</div><div class="ks" id="satRespOf">已服務案中</div></div>
+    <div class="kc info"><div class="kl">問卷回收率</div><div class="kv" id="satRespRate">—</div><div class="ks">累積進家案</div></div>
+    <div class="kc ok"><div class="kl">平均滿意分數</div><div class="kv" id="satAvg">—</div><div class="ks">滿分 5 分</div></div>
+    <div class="kc ok"><div class="kl">滿分回填率</div><div class="kv" id="satPerfect">—</div><div class="ks">四題皆5分</div></div>
+  </div>
+
+  <!-- Charts row -->
+  <div class="g11" style="margin-bottom:12px">
+    <div class="cc">
+      <div class="ch"><div class="ct">四題滿意度平均分</div></div>
+      <div class="cv"><canvas id="satBarChart"></canvas></div>
+    </div>
+    <div class="cc">
+      <div class="ch"><div class="ct">問卷回收狀況</div></div>
+      <div class="cv"><canvas id="satPieChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Score detail table -->
+  <div class="cc" style="margin-bottom:12px">
+    <div class="ch"><div class="ct">各題得分明細</div><div class="cs">已回收 44 份問卷</div></div>
+    <table>
+      <thead><tr>
+        <th>題目</th><th>問卷題目內容</th><th>平均分</th><th>5分人數</th><th>5分比率</th>
+      </tr></thead>
+      <tbody id="satScoreTbody"></tbody>
+    </table>
+  </div>
+
+  <!-- Q5 suggestions -->
+  <div class="cc" style="margin-bottom:12px">
+    <div class="ch"><div class="ct">移工開放式建議（Q5）</div><div class="cs" id="satSugCnt"></div></div>
+    <div id="satSugList" style="padding:4px 0"></div>
+  </div>
+
+</div>
+</div><!-- /vSat -->
+
 <!-- ===== ADMIN ===== -->
 <div id="vAdmin">
 <div class="main">
@@ -741,9 +795,10 @@ const DEFAULT_WEEKLY=[
   {date:'2026-08-05',done:133,sch:16,pend:25,note:'新增131-133案（8/4-8/5服務，路竹區/三民區/鹽埕區；周玉娟×3，鐘麗虹×3）'},
   {date:'2026-08-14',done:154,sch:10,pend:1,note:'新增134-154案（8/6-8/13服務，共21案；長照A單位+9、勞工局+10；待派案降至1件）'},
   {date:'2026-08-17',done:159,sch:7,pend:1,note:'新增155-159案（8/15~8/16服務，鼓山區×2、小港區、岡山區、三民區）'},
-  {date:'2026-08-24',done:164,sch:0,pend:1,note:'新增160-164案（8/18-8/22服務，樊秀盆/王淑琴/周紫/葛許求/黃燦榮）'}
+  {date:'2026-08-24',done:164,sch:0,pend:1,note:'新增160-164案（8/18-8/22服務，樊秀盆/王淑琴/周紫/葛許求/黃燦榮）'},
+  {date:'2026-08-26',done:165,sch:0,pend:1,note:'新增165案（8/26服務，王惠珍，前鎮區，勞工局轉介）'}
 ];
-const WEEKLY_VER=10;
+const WEEKLY_VER=11;
 const EXPENSES_VER=10; // 7/29v10：新增護理包(nk)欄位，認列7月護理包採購成本$12,614
 
 function ld(){
@@ -838,12 +893,14 @@ function sv(v){
   document.getElementById('vDash').style.display=v==='dash'?'block':'none';
   document.getElementById('vPL').style.display=v==='pl'?'block':'none';
   document.getElementById('vAna').style.display=v==='ana'?'block':'none';
+  document.getElementById('vSat').style.display=v==='sat'?'block':'none';
   document.getElementById('vAdmin').style.display=v==='admin'?'block':'none';
-  const views=['dash','pl','ana','admin'];
+  const views=['dash','pl','ana','sat','admin'];
   document.querySelectorAll('.vbtn').forEach((b,i)=>b.classList.toggle('on',views[i]===v));
   if(v==='dash'){renderDash();setTimeout(drawDashCharts,150)}
   if(v==='pl'){renderPL();setTimeout(drawPLChart,150)}
   if(v==='ana'){setTimeout(drawAnaCharts,150)}
+  if(v==='sat'){setTimeout(drawSatCharts,150)}
 }
 function st(id,el){
   document.querySelectorAll('.tcont').forEach(t=>t.classList.remove('on'));
@@ -1615,25 +1672,111 @@ function sta(id,btn){
 }
 
 const ANA={
-  updateDate:'2026/08/24(一)',total:164,
-  sources:{'歲悅自招':65,'長照A單位':47,'勞工局':52},
-  nationalities:{'印尼':151,'菲律賓':10,'越南':3},
-  districts:{'鳳山區':22,'前鎮區':15,'三民區':14,'楠梓區':14,'苓雅區':10,'小港區':9,'岡山區':9,'鼓山區':8,'新興區':8,'鹽埕區':7,'大寮區':6,'路竹區':5,'左營區':5,'美濃區':5,'鳥松區':4,'阿蓮區':4,'梓官區':3,'旗山區':3,'茄萣區':2,'林園區':2,'大樹區':2,'前金區':2,'彌陀區':1,'仁武區':1,'燕巢區':1,'湖內區':1,'內門區':1},
-  teachers:{'周玉娟':59,'吳駱雅心':44,'蔡金花':28,'劉虹橋':27,'李思穎':4,'莊昕瑗':2},
-  professions:{'護理師':162,'物理治療師':2},
-  interpreters:{'鐘麗虹':70,'許源凱':34,'梁禛真':27,'張麗麗':20,'顏鈺婷':10,'鄧安芷':3},
-  genders:{'男':72,'女':92},
-  seniority:{'未達一年':116,'1-3年':26,'3-5年':12,'5年以上':10},
-  monthly:{'4':15,'5':29,'6':41,'7':41,'8':38},
-  ageStats:{avg:80.8,bins:{'60歲以下':9,'60-69歲':6,'70-79歲':51,'80-89歲':67,'90歲以上':31}},
+  updateDate:'2026/08/26(三)',total:165,
+  sources:{'歲悅自招':65,'長照A單位':47,'勞工局':53},
+  nationalities:{'印尼':152,'菲律賓':10,'越南':3},
+  districts:{'鳳山區':22,'前鎮區':16,'三民區':14,'楠梓區':14,'苓雅區':10,'小港區':9,'岡山區':9,'鼓山區':8,'新興區':8,'鹽埕區':7,'大寮區':6,'路竹區':5,'左營區':5,'美濃區':5,'鳥松區':4,'阿蓮區':4,'梓官區':3,'旗山區':3,'茄萣區':2,'林園區':2,'大樹區':2,'前金區':2,'彌陀區':1,'仁武區':1,'燕巢區':1,'湖內區':1,'內門區':1},
+  teachers:{'周玉娟':59,'吳駱雅心':45,'蔡金花':28,'劉虹橋':27,'李思穎':4,'莊昕瑗':2},
+  professions:{'護理師':163,'物理治療師':2},
+  interpreters:{'鐘麗虹':70,'許源凱':34,'梁禛真':27,'張麗麗':21,'顏鈺婷':10,'鄧安芷':3},
+  genders:{'男':72,'女':93},
+  seniority:{'未達一年':116,'1-3年':26,'3-5年':12,'5年以上':11},
+  monthly:{'4':15,'5':29,'6':41,'7':41,'8':39},
+  ageStats:{avg:80.7,bins:{'60歲以下':9,'60-69歲':7,'70-79歲':51,'80-89歲':67,'90歲以上':31}},
   scores:{
-    '移動照護':{count:148,pre_avg:4.43,post_avg:8.33,avg_improvement:3.90,pairs:148},
+    '移動照護':{count:151,pre_avg:4.42,post_avg:8.32,avg_improvement:3.90,pairs:151},
     '飲食照護':{count:86,pre_avg:4.56,post_avg:8.53,avg_improvement:3.97,pairs:86},
-    '排泄照護':{count:83,pre_avg:4.83,post_avg:8.54,avg_improvement:3.71,pairs:83},
-    '潔身照護':{count:108,pre_avg:4.67,post_avg:8.30,avg_improvement:3.63,pairs:108},
-    '居家健康管理':{count:140,pre_avg:4.53,post_avg:8.50,avg_improvement:3.97,pairs:140}
+    '排泄照護':{count:85,pre_avg:4.84,post_avg:8.54,avg_improvement:3.70,pairs:85},
+    '潔身照護':{count:111,pre_avg:4.68,post_avg:8.29,avg_improvement:3.61,pairs:111},
+    '居家健康管理':{count:141,pre_avg:4.55,post_avg:8.51,avg_improvement:3.96,pairs:141}
   }
 };
+
+// ===== 移工滿意度資料（資料截至 2026/08/26，已回收44份）=====
+const SAT_DATA={
+  total_served:165,
+  responded:44,
+  questions:[
+    {short:'Q1 聽懂內容',full:'今天老師教的內容，我可以聽得懂',avg:5.0,dist:{5:44}},
+    {short:'Q2 熟悉技巧',full:'透過老師示範、演練，使我能夠熟悉新的知識與照顧方法',avg:5.0,dist:{5:44}},
+    {short:'Q3 工作幫助',full:'到宅訓練對我工作上有很大的幫助',avg:5.0,dist:{5:44}},
+    {short:'Q4 喜歡訓練',full:'喜不喜歡這次的訓練',avg:5.0,dist:{5:44}},
+  ],
+  suggestions:[
+    {id:'15',text:'cukup dimengerti','zh':'完全可以理解'},
+    {id:'16',text:'saya sangat dengan bantuan pemerintah','zh':'非常感謝政府的幫助'},
+    {id:'17',text:'saya sangat dengan bantuan pemerintah','zh':'非常感謝政府的幫助'},
+    {id:'18',text:'Dengan adanya latihan ini atau bimbingan saya banyak tahu cara merawat orang tua','zh':'透過這次訓練和指導，我學到了很多照顧長輩的方法'},
+    {id:'25',text:'karena sudah cukup serta penjelasannya mudah dimengerti','zh':'解釋簡單易懂，已完全理解'},
+    {id:'27',text:'Terimakasih atas bimbingannya, saya jadi lebih mengerti','zh':'謝謝指導，讓我更加了解'},
+    {id:'31',text:'saya rasa cukup membantu dan sharing. Terimakasih','zh':'覺得很有幫助，也值得分享，謝謝'},
+    {id:'34',text:'terima kasih saya menjadi tahu cara merawat kakek dengan baik','zh':'謝謝，我現在知道如何好好照顧長輩'},
+    {id:'42',text:'terima kasih atas bimbingan nya','zh':'謝謝你的指導'},
+  ]
+};
+
+let chSatBar=null,chSatPie=null;
+function drawSatCharts(){
+  const d=SAT_DATA;
+  const respRate=(d.responded/d.total_served*100).toFixed(1);
+  const overallAvg=(d.questions.reduce((s,q)=>s+q.avg,0)/d.questions.length).toFixed(1);
+  const perfectPct=(d.responded/d.responded*100).toFixed(0);
+
+  document.getElementById('satUpdateLbl').textContent='資料截至 2026/08/26（三）';
+  document.getElementById('satRespN').textContent=d.responded+'份';
+  document.getElementById('satRespOf').textContent='共 '+d.total_served+' 案已服務';
+  document.getElementById('satRespRate').textContent=respRate+'%';
+  document.getElementById('satAvg').textContent=overallAvg+' 分';
+  document.getElementById('satPerfect').textContent='100%';
+
+  // Score detail table
+  document.getElementById('satScoreTbody').innerHTML=d.questions.map((q,i)=>`
+    <tr>
+      <td><strong>Q${i+1}</strong></td>
+      <td style="font-size:11px;color:var(--gray)">${q.full}</td>
+      <td><strong style="color:var(--ok)">${q.avg.toFixed(1)}</strong></td>
+      <td>${q.dist[5]||0} 人</td>
+      <td><span class="badge b-ok">${((q.dist[5]||0)/d.responded*100).toFixed(0)}%</span></td>
+    </tr>`).join('');
+
+  // Q5 suggestions
+  document.getElementById('satSugCnt').textContent=d.suggestions.length+' 則（印尼語為主）';
+  document.getElementById('satSugList').innerHTML=d.suggestions.map(s=>`
+    <div style="padding:8px 12px;border-bottom:1px solid #F3F4F6;font-size:12px">
+      <span class="badge b-info" style="margin-right:6px">#${s.id}</span>
+      <span style="color:var(--dark)">${s.zh}</span>
+      <span style="color:var(--gray);font-size:10px;margin-left:6px">${s.text}</span>
+    </div>`).join('');
+
+  // Bar chart
+  if(chSatBar){chSatBar.destroy();chSatBar=null;}
+  const barCtx=document.getElementById('satBarChart');
+  if(barCtx){
+    chSatBar=new Chart(barCtx,{type:'bar',data:{
+      labels:d.questions.map(q=>q.short),
+      datasets:[{label:'平均滿意分數',data:d.questions.map(q=>q.avg),
+        backgroundColor:['#27AE60','#4A90D9','#E8732A','#F39C12'],
+        borderRadius:6}]
+    },options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},
+      datalabels:{color:'#fff',font:{weight:'bold'},formatter:v=>v.toFixed(1)}},
+      scales:{y:{min:0,max:5,ticks:{stepSize:1},grid:{color:'#F3F4F6'}},x:{grid:{display:false}}}}});
+  }
+
+  // Pie chart
+  if(chSatPie){chSatPie.destroy();chSatPie=null;}
+  const pieCtx=document.getElementById('satPieChart');
+  if(pieCtx){
+    chSatPie=new Chart(pieCtx,{type:'pie',data:{
+      labels:['已回填問卷（'+d.responded+'案）','尚未回填（'+(d.total_served-d.responded)+'案）'],
+      datasets:[{data:[d.responded,d.total_served-d.responded],
+        backgroundColor:['#27AE60','#E5E7EB'],borderWidth:2,borderColor:'#fff'}]
+    },options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'bottom',labels:{font:{size:11}}},
+        datalabels:{color:['#fff','#6B7280'],font:{weight:'bold'},
+          formatter:(v,ctx)=>{const t=ctx.chart.data.datasets[0].data.reduce((a,b)=>a+b,0);
+            return (v/t*100).toFixed(1)+'%';}}}}});
+  }
+}
 
 let chAnaSrc=null,chAnaNat=null,chAnaDist=null,chAnaScore=null,chAnaTeacher=null,chAnaInterp=null,chAnaGender=null,chAnaAge=null,chAnaSen=null,chAnaMon=null;
 
