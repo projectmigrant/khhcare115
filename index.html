@@ -94,7 +94,7 @@ tr:hover td{background:#FAFAFA}
 .big-num{font-size:32px;font-weight:800;margin:8px 0 4px}
 .big-sub{font-size:11px;color:var(--gray)}
 /* Admin */
-#vAdmin{display:none}#vPL{display:none}#vAna{display:none}#vSat{display:none}
+#vAdmin{display:none}#vPL{display:none}#vAna{display:none}#vSat{display:none}#vEmp{display:none}
 .adm-hdr{background:var(--card);border-radius:10px;padding:14px 18px;margin-bottom:14px;box-shadow:var(--shadow);display:flex;align-items:center;justify-content:space-between}
 .tnav{display:flex;gap:0;background:#F3F4F6;border-radius:8px;padding:3px;margin-bottom:14px}
 .tbtn{padding:7px 18px;border:none;background:transparent;border-radius:6px;font-size:12px;font-weight:600;color:var(--gray);cursor:pointer;font-family:inherit;transition:.2s}
@@ -182,6 +182,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--pri)}
       <button class="vbtn" onclick="sv('pl')">💰 損益</button>
       <button class="vbtn" onclick="sv('ana')">📊 個案分析</button>
       <button class="vbtn" onclick="sv('sat')">😊 移工滿意度</button>
+      <button class="vbtn" onclick="sv('emp')">⭐ 雇主滿意度</button>
       <button class="vbtn" onclick="sv('admin')">⚙️ 後台</button>
     </div>
   </div>
@@ -579,6 +580,59 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--pri)}
 </div>
 </div><!-- /vSat -->
 
+<!-- ===== 雇主滿意度 ===== -->
+<div id="vEmp">
+<div class="main">
+  <div class="cc" style="margin-bottom:12px;padding:14px 18px">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <div style="font-size:13px;font-weight:700;color:var(--pri)">⭐ 雇主滿意度分析</div>
+        <div style="font-size:11px;color:var(--gray);margin-top:2px">資料來源：115年高雄指導總表 › 雇主滿意度（1-5分量表，11題）</div>
+      </div>
+      <div style="font-size:11px;color:var(--gray)" id="empUpdateLbl"></div>
+    </div>
+  </div>
+
+  <!-- KPI cards -->
+  <div class="krow" style="grid-template-columns:repeat(4,1fr);margin-bottom:12px">
+    <div class="kc ok"><div class="kl">已回收問卷</div><div class="kv" id="empRespN">—</div><div class="ks" id="empRespOf">已服務案中</div></div>
+    <div class="kc info"><div class="kl">問卷回收率</div><div class="kv" id="empRespRate">—</div><div class="ks">累積進家案</div></div>
+    <div class="kc ok"><div class="kl">平均滿意分數</div><div class="kv" id="empAvg">—</div><div class="ks">滿分 5 分</div></div>
+    <div class="kc ok"><div class="kl">整體滿意全5分</div><div class="kv" id="empPerfect">—</div><div class="ks">Q1整體滿意度</div></div>
+  </div>
+
+  <!-- Charts row -->
+  <div class="g11" style="margin-bottom:12px">
+    <div class="cc">
+      <div class="ch"><div class="ct">11題滿意度平均分</div></div>
+      <div class="cv"><canvas id="empBarChart"></canvas></div>
+    </div>
+    <div class="cc">
+      <div class="ch"><div class="ct">問卷回收狀況</div></div>
+      <div class="cv"><canvas id="empPieChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Score detail table -->
+  <div class="cc" style="margin-bottom:12px">
+    <div class="ch"><div class="ct">各題得分明細</div><div class="cs"><span id="empScoreCs"></span>　各題填答人數略有不同，因雇主依實際指導項目評分，未指導之項目空白為正常現象</div></div>
+    <table>
+      <thead><tr>
+        <th>題目</th><th>問卷題目內容</th><th>回填數</th><th>平均分</th><th>5分人數</th><th>5分比率</th>
+      </tr></thead>
+      <tbody id="empScoreTbody"></tbody>
+    </table>
+  </div>
+
+  <!-- Suggestions -->
+  <div class="cc" style="margin-bottom:12px">
+    <div class="ch"><div class="ct">雇主開放式建議（Q12）</div><div class="cs" id="empSugCnt"></div></div>
+    <div id="empSugList" style="padding:4px 0"></div>
+  </div>
+
+</div>
+</div><!-- /vEmp -->
+
 <!-- ===== ADMIN ===== -->
 <div id="vAdmin">
 <div class="main">
@@ -900,13 +954,15 @@ function sv(v){
   document.getElementById('vPL').style.display=v==='pl'?'block':'none';
   document.getElementById('vAna').style.display=v==='ana'?'block':'none';
   document.getElementById('vSat').style.display=v==='sat'?'block':'none';
+  document.getElementById('vEmp').style.display=v==='emp'?'block':'none';
   document.getElementById('vAdmin').style.display=v==='admin'?'block':'none';
-  const views=['dash','pl','ana','sat','admin'];
+  const views=['dash','pl','ana','sat','emp','admin'];
   document.querySelectorAll('.vbtn').forEach((b,i)=>b.classList.toggle('on',views[i]===v));
   if(v==='dash'){renderDash();setTimeout(drawDashCharts,150)}
   if(v==='pl'){renderPL();setTimeout(drawPLChart,150)}
   if(v==='ana'){setTimeout(drawAnaCharts,150)}
   if(v==='sat'){setTimeout(drawSatCharts,150)}
+  if(v==='emp'){setTimeout(drawEmpCharts,150)}
 }
 function st(id,el){
   document.querySelectorAll('.tcont').forEach(t=>t.classList.remove('on'));
@@ -1700,7 +1756,7 @@ const ANA={
 
 // ===== 移工滿意度資料（資料截至 2026/08/26，已回收44份）=====
 const SAT_DATA={
-  total_served:165,
+  total_served:185,
   responded:44,
   questions:[
     {short:'Q1 聽懂內容',full:'今天老師教的內容，我可以聽得懂',avg:5.0,dist:{5:44}},
@@ -1724,13 +1780,13 @@ const SAT_DATA={
 let chSatBar=null,chSatPie=null;
 function drawSatCharts(){
   const d=SAT_DATA;
-  const respRate=(d.responded/d.total_served*100).toFixed(1);
+  const respRate=(d.responded/ANA.total*100).toFixed(1);
   const overallAvg=(d.questions.reduce((s,q)=>s+q.avg,0)/d.questions.length).toFixed(1);
   const perfectPct=(d.responded/d.responded*100).toFixed(0);
 
   document.getElementById('satUpdateLbl').textContent='資料截至 2026/08/26（三）';
   document.getElementById('satRespN').textContent=d.responded+'份';
-  document.getElementById('satRespOf').textContent='共 '+d.total_served+' 案已服務';
+  document.getElementById('satRespOf').textContent='共 '+ANA.total+' 案已服務';
   document.getElementById('satRespRate').textContent=respRate+'%';
   document.getElementById('satAvg').textContent=overallAvg+' 分';
   document.getElementById('satPerfect').textContent='100%';
@@ -1773,9 +1829,113 @@ function drawSatCharts(){
   const pieCtx=document.getElementById('satPieChart');
   if(pieCtx){
     chSatPie=new Chart(pieCtx,{type:'pie',data:{
-      labels:['已回填問卷（'+d.responded+'案）','尚未回填（'+(d.total_served-d.responded)+'案）'],
-      datasets:[{data:[d.responded,d.total_served-d.responded],
+      labels:['已回填問卷（'+d.responded+'案）','尚未回填（'+(ANA.total-d.responded)+'案）'],
+      datasets:[{data:[d.responded,ANA.total-d.responded],
         backgroundColor:['#27AE60','#E5E7EB'],borderWidth:2,borderColor:'#fff'}]
+    },options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{position:'bottom',labels:{font:{size:11}}},
+        datalabels:{color:['#fff','#6B7280'],font:{weight:'bold'},
+          formatter:(v,ctx)=>{const t=ctx.chart.data.datasets[0].data.reduce((a,b)=>a+b,0);
+            return (v/t*100).toFixed(1)+'%';}}}}});
+  }
+}
+
+// ===== 雇主滿意度資料（資料截至 2026/09/08，1-44案已確認回收，共44份）=====
+const EMP_DATA={
+  total_served:185,
+  responded:44,
+  questions:[
+    {short:'Q1 整體滿意',full:'到宅訓練的服務整體滿意度調查',count:43,avg:5.00,dist:{5:43}},
+    {short:'Q2 翻身移位',full:'翻身移位技巧',count:41,avg:4.95,dist:{5:39,4:2}},
+    {short:'Q3 飲食照護',full:'飲食照護技巧',count:41,avg:4.98,dist:{5:40,4:1}},
+    {short:'Q4 排泄照護',full:'排泄照護技巧',count:39,avg:4.95,dist:{5:37,4:2}},
+    {short:'Q5 潔身照護',full:'潔身照護技巧',count:40,avg:4.97,dist:{5:39,4:1}},
+    {short:'Q6 居家健康',full:'居家健康管理諮詢服務',count:43,avg:4.98,dist:{5:42,4:1}},
+    {short:'Q7 指導教學',full:'指導員教學服務',count:44,avg:5.00,dist:{5:44}},
+    {short:'Q8 指導表達',full:'指導員表達能力',count:44,avg:5.00,dist:{5:44}},
+    {short:'Q9 指導專業',full:'指導員專業知識',count:44,avg:4.98,dist:{5:43,4:1}},
+    {short:'Q10 通譯表達',full:'通譯人員表達能力',count:44,avg:4.95,dist:{5:42,4:2}},
+    {short:'Q11 通譯服務',full:'通譯人員服務情形',count:44,avg:4.98,dist:{5:43,4:1}},
+  ],
+  suggestions:[
+    {id:'002',text:'很棒'},
+    {id:'003',text:'本次有翻譯老師的協助溝通覺得很棒，因為外看進入一個新的環境有很多地方要磨合，語言溝通是很大的障礙及問題，希望能增加翻譯老師協助的次數，或利用網路平台或翻譯老師與雇主外看能有群組或透過zoom來溝通協調'},
+    {id:'004',text:'非常感謝能到宅服務'},
+    {id:'007',text:'來的次數太少'},
+    {id:'008',text:'服務非常好，幫助溝通及互相理解，希望未來市府可以提供服務次數延續指導'},
+    {id:'015',text:'落實一進一出空窗期時間縮短'},
+    {id:'017',text:'非常感謝'},
+    {id:'018',text:'希望有再一次的協助讓外國人更貼切熟悉臺灣老人的需求'},
+    {id:'019',text:'通譯人很好，重點加強，謝謝妳們'},
+    {id:'020',text:'希望有持續追蹤跟需求'},
+    {id:'021',text:'整體指導服務非常到位，由於語言溝通障礙，使外看與個案之間無法有更加親密之接觸。未來期望政府長照機構能提升補助額度，使個案能與外看及通譯人員幫助下能更貼近彼此之生活，提升長期照護之品質'},
+    {id:'023',text:'服務很好，可以延續及追蹤'},
+    {id:'024',text:'很滿意!!'},
+    {id:'026',text:'非常好'},
+    {id:'030',text:'滿意，非常有幫助!!'},
+    {id:'031',text:'優秀'},
+    {id:'036',text:'收穫很多，謝謝你們幫忙!!'},
+    {id:'043',text:'服務次數太少，後續無法追蹤情況，我們後續有問題也無法詢問'},
+    {id:'044',text:'希望後續有定期再教學及更新資訊'},
+  ]
+};
+
+let chEmpBar=null,chEmpPie=null;
+function drawEmpCharts(){
+  const d=EMP_DATA;
+  const respRate=(d.responded/ANA.total*100).toFixed(1);
+  const overallAvg=(d.questions.reduce((s,q)=>s+q.avg,0)/d.questions.length).toFixed(2);
+  const q1=d.questions[0];
+  const perfectPct=((q1.dist[5]||0)/q1.count*100).toFixed(0);
+
+  document.getElementById('empUpdateLbl').textContent='資料截至 2026/09/08（一）';
+  document.getElementById('empRespN').textContent=d.responded+'份';
+  document.getElementById('empRespOf').textContent='共 '+ANA.total+' 案已服務';
+  document.getElementById('empRespRate').textContent=respRate+'%';
+  document.getElementById('empAvg').textContent=overallAvg+' 分';
+  document.getElementById('empPerfect').textContent=perfectPct+'%';
+  document.getElementById('empScoreCs').textContent='已回收 '+d.responded+' 份問卷';
+
+  // Score detail table
+  document.getElementById('empScoreTbody').innerHTML=d.questions.map((q,i)=>`
+    <tr>
+      <td><strong>Q${i+1}</strong></td>
+      <td style="font-size:11px;color:var(--gray)">${q.full}</td>
+      <td>${q.count} 人</td>
+      <td><strong style="color:var(--ok)">${q.avg.toFixed(2)}</strong></td>
+      <td>${q.dist[5]||0} 人</td>
+      <td><span class="badge b-ok">${((q.dist[5]||0)/q.count*100).toFixed(0)}%</span></td>
+    </tr>`).join('');
+
+  // Suggestions
+  document.getElementById('empSugCnt').textContent=d.suggestions.length+' 則（中文）';
+  document.getElementById('empSugList').innerHTML=d.suggestions.map(s=>`
+    <div style="padding:8px 12px;border-bottom:1px solid #F3F4F6;font-size:12px">
+      <span class="badge b-info" style="margin-right:6px">#${s.id}</span>
+      <span style="color:var(--dark)">${s.text}</span>
+    </div>`).join('');
+
+  // Bar chart
+  if(chEmpBar){chEmpBar.destroy();chEmpBar=null;}
+  const barCtx=document.getElementById('empBarChart');
+  if(barCtx){
+    const colors=['#27AE60','#4A90D9','#4A90D9','#4A90D9','#4A90D9','#4A90D9','#E8732A','#E8732A','#E8732A','#F39C12','#F39C12'];
+    chEmpBar=new Chart(barCtx,{type:'bar',data:{
+      labels:d.questions.map(q=>q.short),
+      datasets:[{label:'平均滿意分數',data:d.questions.map(q=>q.avg),backgroundColor:colors,borderRadius:4}]
+    },options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},
+      datalabels:{color:'#fff',font:{weight:'bold',size:10},formatter:v=>v.toFixed(2)}},
+      scales:{y:{min:4.8,max:5.05,ticks:{stepSize:0.05},grid:{color:'#F3F4F6'}},x:{grid:{display:false},ticks:{font:{size:9}}}}}});
+  }
+
+  // Pie chart
+  if(chEmpPie){chEmpPie.destroy();chEmpPie=null;}
+  const pieCtx=document.getElementById('empPieChart');
+  if(pieCtx){
+    chEmpPie=new Chart(pieCtx,{type:'pie',data:{
+      labels:['已回填問卷（'+d.responded+'案）','尚未回填（'+(ANA.total-d.responded)+'案）'],
+      datasets:[{data:[d.responded,ANA.total-d.responded],
+        backgroundColor:['#F39C12','#E5E7EB'],borderWidth:2,borderColor:'#fff'}]
     },options:{responsive:true,maintainAspectRatio:false,
       plugins:{legend:{position:'bottom',labels:{font:{size:11}}},
         datalabels:{color:['#fff','#6B7280'],font:{weight:'bold'},
