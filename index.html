@@ -854,9 +854,10 @@ const DEFAULT_WEEKLY=[
   {date:'2026-08-26',done:165,sch:0,pend:1,note:'新增165案（8/26服務，王惠珍，前鎮區，勞工局轉介）'},
   {date:'2026-08-31',done:170,sch:0,pend:1,note:'新增166-170案（8/27-8/29服務，王文彬/廖玉蓮/藍錦騰/陳麗琴/許嘉榮；鳥松/路竹/左營/仁武/大寮）'},
   {date:'2026-09-04',done:180,sch:0,pend:1,note:'新增171-180案（8/30-9/4服務，含小港/彌陀/燕巢/苓雅/仁武/前鎮×2/林園/新興/茄萣；9月首批5案）'},
-  {date:'2026-09-07',done:185,sch:0,pend:1,note:'新增181-185案（9/5-9/6服務，謝景明/鄭許綉聰/王美/陳明賜/黃郭綢；大樹/左營/大寮/岡山/旗山）'}
+  {date:'2026-09-07',done:185,sch:0,pend:1,note:'新增181-185案（9/5-9/6服務，謝景明/鄭許綉聰/王美/陳明賜/黃郭綢；大樹/左營/大寮/岡山/旗山）'},
+  {date:'2026-09-14',done:192,sch:0,pend:0,note:'新增186-192案（9/9-9/13服務，蔡文忠/邱榮林/林慶忠/廖玉英/李陳秀來/郭信昌/黃安雄；鳥松×2/大社/左營/鳳山/苓雅/湖內）'}
 ];
-const WEEKLY_VER=15;
+const WEEKLY_VER=16;
 const EXPENSES_VER=13; // 9/7v13：補入8月費用欄至localStorage（pt：快遞$120；bc：$0）
 
 function ld(){
@@ -1734,46 +1735,52 @@ function sta(id,btn){
 }
 
 const ANA={
-  updateDate:'2026/09/07(日)',total:185,
-  sources:{'歲悅自招':65,'長照A單位':53,'勞工局':67},
-  nationalities:{'印尼':171,'菲律賓':11,'越南':3},
-  districts:{'鳳山區':22,'前鎮區':18,'三民區':14,'楠梓區':14,'苓雅區':11,'小港區':10,'岡山區':10,'新興區':9,'鼓山區':8,'大寮區':8,'鹽埕區':7,'左營區':7,'路竹區':6,'鳥松區':5,'美濃區':5,'旗山區':4,'阿蓮區':4,'茄萣區':3,'林園區':3,'梓官區':3,'仁武區':3,'大樹區':3,'彌陀區':2,'燕巢區':2,'前金區':2,'湖內區':1,'內門區':1},
-  teachers:{'周玉娟':63,'吳駱雅心':51,'劉虹橋':33,'蔡金花':31,'李思穎':4,'莊昕瑗':3},
-  professions:{'護理師':182,'物理治療師':3},
-  interpreters:{'鐘麗虹':77,'許源凱':34,'梁禛真':31,'張麗麗':29,'顏鈺婷':11,'鄧安芷':3},
-  genders:{'男':79,'女':106},
-  seniority:{'未達一年':135,'1-3年':26,'3-5年':13,'5年以上':11},
-  monthly:{'4':15,'5':29,'6':41,'7':41,'8':49,'9':10},
-  ageStats:{avg:80.3,bins:{'60歲以下':10,'60-69歲':10,'70-79歲':56,'80-89歲':76,'90歲以上':33}},
+  updateDate:'2026/09/14(一)',total:192,
+  sources:{'歲悅自招':66,'長照A單位':55,'勞工局':71},
+  nationalities:{'印尼':177,'菲律賓':12,'越南':3},
+  districts:{'鳳山區':23,'前鎮區':18,'三民區':14,'楠梓區':14,'苓雅區':12,'小港區':10,'岡山區':10,'新興區':9,'鼓山區':8,'左營區':8,'大寮區':8,'鳥松區':7,'鹽埕區':7,'路竹區':6,'美濃區':5,'旗山區':4,'阿蓮區':4,'茄萣區':3,'林園區':3,'梓官區':3,'仁武區':3,'大樹區':3,'彌陀區':2,'燕巢區':2,'湖內區':2,'前金區':2,'內門區':1,'大社區':1},
+  teachers:{'周玉娟':63,'吳駱雅心':54,'劉虹橋':35,'蔡金花':32,'李思穎':4,'莊昕瑗':4},
+  professions:{'護理師':188,'物理治療師':4},
+  interpreters:{'鐘麗虹':77,'許源凱':34,'梁禛真':33,'張麗麗':33,'顏鈺婷':12,'鄧安芷':3},
+  genders:{'男':84,'女':108},
+  seniority:{'未達一年':142,'1-3年':26,'3-5年':13,'5年以上':11},
+  monthly:{'4':15,'5':29,'6':41,'7':41,'8':49,'9':17},
+  ageStats:{avg:80.3,bins:{'60歲以下':10,'60-69歲':11,'70-79歲':58,'80-89歲':80,'90歲以上':33}},
   scores:{
-    '移動照護':{count:162,pre_avg:4.45,post_avg:8.36,avg_improvement:3.91,pairs:162},
-    '飲食照護':{count:94,pre_avg:4.52,post_avg:8.55,avg_improvement:4.03,pairs:94},
-    '排泄照護':{count:90,pre_avg:4.82,post_avg:8.53,avg_improvement:3.71,pairs:90},
-    '潔身照護':{count:118,pre_avg:4.66,post_avg:8.33,avg_improvement:3.67,pairs:118},
-    '居家健康管理':{count:151,pre_avg:4.52,post_avg:8.54,avg_improvement:4.02,pairs:151}
+    '移動照護':{count:174,pre_avg:4.40,post_avg:8.33,avg_improvement:3.93,pairs:174},
+    '飲食照護':{count:102,pre_avg:4.49,post_avg:8.56,avg_improvement:4.07,pairs:102},
+    '排泄照護':{count:95,pre_avg:4.75,post_avg:8.51,avg_improvement:3.76,pairs:95},
+    '潔身照護':{count:126,pre_avg:4.61,post_avg:8.33,avg_improvement:3.71,pairs:126},
+    '居家健康管理':{count:165,pre_avg:4.55,post_avg:8.56,avg_improvement:4.02,pairs:165}
   }
 };
 
-// ===== 移工滿意度資料（資料截至 2026/08/26，已回收44份）=====
+// ===== 移工滿意度資料（資料截至 2026/09/14，已回收190份）=====
 const SAT_DATA={
-  total_served:185,
-  responded:44,
+  total_served:192,
+  responded:190,
   questions:[
-    {short:'Q1 聽懂內容',full:'今天老師教的內容，我可以聽得懂',avg:5.0,dist:{5:44}},
-    {short:'Q2 熟悉技巧',full:'透過老師示範、演練，使我能夠熟悉新的知識與照顧方法',avg:5.0,dist:{5:44}},
-    {short:'Q3 工作幫助',full:'到宅訓練對我工作上有很大的幫助',avg:5.0,dist:{5:44}},
-    {short:'Q4 喜歡訓練',full:'喜不喜歡這次的訓練',avg:5.0,dist:{5:44}},
+    {short:'Q1 聽懂內容',full:'今天老師教的內容，我可以聽得懂',avg:4.99,dist:{3:1,5:189}},
+    {short:'Q2 熟悉技巧',full:'透過老師示範、演練，使我能夠熟悉新的知識與照顧方法',avg:4.99,dist:{3:1,5:189}},
+    {short:'Q3 工作幫助',full:'到宅訓練對我工作上有很大的幫助',avg:4.99,dist:{3:1,5:189}},
+    {short:'Q4 喜歡訓練',full:'喜不喜歡這次的訓練',avg:4.99,dist:{3:1,5:189}},
   ],
   suggestions:[
-    {id:'15',text:'cukup dimengerti','zh':'完全可以理解'},
-    {id:'16',text:'saya sangat dengan bantuan pemerintah','zh':'非常感謝政府的幫助'},
-    {id:'17',text:'saya sangat dengan bantuan pemerintah','zh':'非常感謝政府的幫助'},
-    {id:'18',text:'Dengan adanya latihan ini atau bimbingan saya banyak tahu cara merawat orang tua','zh':'透過這次訓練和指導，我學到了很多照顧長輩的方法'},
-    {id:'25',text:'karena sudah cukup serta penjelasannya mudah dimengerti','zh':'解釋簡單易懂，已完全理解'},
-    {id:'27',text:'Terimakasih atas bimbingannya, saya jadi lebih mengerti','zh':'謝謝指導，讓我更加了解'},
-    {id:'31',text:'saya rasa cukup membantu dan sharing. Terimakasih','zh':'覺得很有幫助，也值得分享，謝謝'},
-    {id:'34',text:'terima kasih saya menjadi tahu cara merawat kakek dengan baik','zh':'謝謝，我現在知道如何好好照顧長輩'},
-    {id:'42',text:'terima kasih atas bimbingan nya','zh':'謝謝你的指導'},
+    {id:'015',text:'cukup dimengerti','zh':'完全可以理解'},
+    {id:'016',text:'saya sangat dengan bantuan pemerintah','zh':'非常感謝政府的幫助'},
+    {id:'017',text:'saya sangat dengan bantuan pemerintah','zh':'非常感謝政府的幫助'},
+    {id:'018',text:'Dengan adanya latihan ini atau bimbingan saya banyak tahu cara merawat orang tua','zh':'透過這次的訓練和指導，我學到了很多照顧長輩的方法'},
+    {id:'025',text:'karena sudah cukup serta penjelasannya mudah climergenti','zh':'就這樣就夠了，解釋也很容易理解'},
+    {id:'027',text:'Terimakasih atas bimbingannya, saya jadi lebih mengerti','zh':'謝謝你們的指導，讓我更加了解'},
+    {id:'031',text:'saya rasa cukup membantu dan sharing. terimakasih atas khunsa','zh':'我覺得這很有幫助，也值得分享，謝謝'},
+    {id:'034',text:'terima kasih saya menjadi tahu cara merawat kakek dengan baik','zh':'謝謝，我現在知道如何好好照顧長輩'},
+    {id:'042',text:'terima kasih atas bimbingan nya','zh':'謝謝你的指導'},
+    {id:'051',text:'saya sangat suka sekali','zh':'我真的很喜歡'},
+    {id:'077',text:'mengajarkan saya banyak ilmu baru terima kasih','zh':'讓我學到了很多新知識，謝謝'},
+    {id:'102',text:'lain kali jika ada waktu bisa datang lagi untuk mengajarkan saya','zh':'下次如果有機會再來教我一次'},
+    {id:'111',text:'saya berharap lain hari ada layanan seperti ini lagi, karena sagant membantu pekersaan saya','zh':'我希望將來還能有這樣的服務，因為它真的對我的工作很有幫助'},
+    {id:'115',text:'sangat membantu saya mendapatkan pelatihan yg baru','zh':'這真的對我接受新訓練很有幫助'},
+    {id:'127',text:'saya ingin tahur depan ana layanan ini lagi','zh':'我想知道將來是否還會有這項服務'},
   ]
 };
 
@@ -1840,22 +1847,22 @@ function drawSatCharts(){
   }
 }
 
-// ===== 雇主滿意度資料（資料截至 2026/09/08，1-44案已確認回收，共44份）=====
+// ===== 雇主滿意度資料（資料截至 2026/09/14，已回收190份）=====
 const EMP_DATA={
-  total_served:185,
-  responded:44,
+  total_served:192,
+  responded:190,
   questions:[
-    {short:'Q1 整體滿意',full:'到宅訓練的服務整體滿意度調查',count:43,avg:5.00,dist:{5:43}},
-    {short:'Q2 翻身移位',full:'翻身移位技巧',count:41,avg:4.95,dist:{5:39,4:2}},
-    {short:'Q3 飲食照護',full:'飲食照護技巧',count:41,avg:4.98,dist:{5:40,4:1}},
-    {short:'Q4 排泄照護',full:'排泄照護技巧',count:39,avg:4.95,dist:{5:37,4:2}},
-    {short:'Q5 潔身照護',full:'潔身照護技巧',count:40,avg:4.97,dist:{5:39,4:1}},
-    {short:'Q6 居家健康',full:'居家健康管理諮詢服務',count:43,avg:4.98,dist:{5:42,4:1}},
-    {short:'Q7 指導教學',full:'指導員教學服務',count:44,avg:5.00,dist:{5:44}},
-    {short:'Q8 指導表達',full:'指導員表達能力',count:44,avg:5.00,dist:{5:44}},
-    {short:'Q9 指導專業',full:'指導員專業知識',count:44,avg:4.98,dist:{5:43,4:1}},
-    {short:'Q10 通譯表達',full:'通譯人員表達能力',count:44,avg:4.95,dist:{5:42,4:2}},
-    {short:'Q11 通譯服務',full:'通譯人員服務情形',count:44,avg:4.98,dist:{5:43,4:1}},
+    {short:'Q1 整體滿意',full:'到宅訓練的服務整體滿意度調查',count:189,avg:4.99,dist:{4:1,5:188}},
+    {short:'Q2 翻身移位',full:'翻身移位技巧',count:177,avg:4.96,dist:{3:1,4:5,5:171}},
+    {short:'Q3 飲食照護',full:'飲食照護技巧',count:173,avg:4.98,dist:{4:3,5:170}},
+    {short:'Q4 排泄照護',full:'排泄照護技巧',count:161,avg:4.96,dist:{3:1,4:5,5:155}},
+    {short:'Q5 潔身照護',full:'潔身照護技巧',count:165,avg:4.98,dist:{4:4,5:161}},
+    {short:'Q6 居家健康',full:'居家健康管理諮詢服務',count:189,avg:4.97,dist:{4:5,5:184}},
+    {short:'Q7 指導教學',full:'指導員教學服務',count:190,avg:4.99,dist:{4:1,5:189}},
+    {short:'Q8 指導表達',full:'指導員表達能力',count:190,avg:4.99,dist:{4:1,5:189}},
+    {short:'Q9 指導專業',full:'指導員專業知識',count:190,avg:4.99,dist:{4:2,5:188}},
+    {short:'Q10 通譯表達',full:'通譯人員表達能力',count:190,avg:4.98,dist:{4:3,5:187}},
+    {short:'Q11 通譯服務',full:'通譯人員服務情形',count:190,avg:4.99,dist:{4:2,5:188}},
   ],
   suggestions:[
     {id:'002',text:'很棒'},
@@ -1877,6 +1884,44 @@ const EMP_DATA={
     {id:'036',text:'收穫很多，謝謝你們幫忙!!'},
     {id:'043',text:'服務次數太少，後續無法追蹤情況，我們後續有問題也無法詢問'},
     {id:'044',text:'希望後續有定期再教學及更新資訊'},
+    {id:'045',text:'你們服務真好，常來關心我們，有你真好'},
+    {id:'046',text:'感謝吳駱雅心護理師和鐘麗虹老師的協助，非常仔細、用心的指點'},
+    {id:'047',text:'建議五大訓練可以增加次數，依照申請人需要分別照護，後續有追蹤的服務和必要性（不能只有一次服務）'},
+    {id:'051',text:'很棒，會依我們狀況給很多建議'},
+    {id:'058',text:'很滿意'},
+    {id:'060',text:'服務很好，希望次數可以多一些'},
+    {id:'062',text:'本次的服務滿意，但如果可以增加服務後的再追蹤可以給病人更多幫助'},
+    {id:'063',text:'本次至案家指導無論在服務態度或訓練技巧方面均非常良好，尤其是教導年長者的四肢活動訓練非常實用，外籍照顧者也實際操作，應用推廣至各個家庭'},
+    {id:'064',text:'請針對外籍移工多多宣導臺灣用電及用火安全，多提供雇主資源協助移工適應臺灣的生活及專業照顧知識'},
+    {id:'065',text:'很好的服務，請政府相關部門能增加預算讓長者可得到更好的服務'},
+    {id:'075',text:'服務專業，溝通都很好，能了解雇主需求'},
+    {id:'091',text:'希望持續有這個服務'},
+    {id:'093',text:'滿意'},
+    {id:'094',text:'感謝指導員及通譯人員的協助與分享，對照顧者應注意事項耐心講解'},
+    {id:'099',text:'指導員和通譯人員的表現都非常的認真，對受照顧者幫助很大，希望這種帶動教學能加強推廣，使受病痛的患者有一個有希望的未來，加油!!'},
+    {id:'103',text:'親切、專業'},
+    {id:'107',text:'非常滿意、實用，希望後續能繼續'},
+    {id:'110',text:'指導老師及翻譯員都很有耐心又謹慎貼心，非常滿意，謝謝'},
+    {id:'111',text:'建議增加服務次數'},
+    {id:'119',text:'非常好'},
+    {id:'121',text:'很專業，很細心、貼心，給家屬很棒的學習指導!很棒!謝謝您們!'},
+    {id:'122',text:'訪視次數一次(3小時太少)，希望可以增加次數'},
+    {id:'124',text:'確實有很多觀點與技巧是有實質幫到忙，很感謝指導員悉心瞭解提供協助以及翻譯，謝謝訪視'},
+    {id:'130',text:'很讚的服務'},
+    {id:'141',text:'對家屬、外勞、病人幫助很大，非常好'},
+    {id:'150',text:'此次服務非常好，受益良多，多來幾次，感激不盡'},
+    {id:'155',text:'太好了'},
+    {id:'156',text:'非常感謝護理師和翻譯人員細心又耐心的指導!'},
+    {id:'158',text:'專業的知識，很受用，謝謝!'},
+    {id:'162',text:'希望下次再來一次'},
+    {id:'163',text:'建議多安排家訪及訓練，服務品質良好，受益良多，謝謝'},
+    {id:'164',text:'很細心'},
+    {id:'170',text:'非常滿意'},
+    {id:'176',text:'建議每天服務次數可以增加，每次服務時間可以減短'},
+    {id:'181',text:'很好'},
+    {id:'185',text:'希望未來這個服務能持續，非常好'},
+    {id:'186',text:'服務很好，說明很詳細'},
+    {id:'187',text:'很好，很棒'},
   ]
 };
 
